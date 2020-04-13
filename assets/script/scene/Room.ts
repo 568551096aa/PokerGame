@@ -1,31 +1,117 @@
-// Learn TypeScript:
-//  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
-//  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/typescript.html
-// Learn Attribute:
-//  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/reference/attributes.html
-//  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/reference/attributes.html
-// Learn life-cycle callbacks:
-//  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
-//  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/life-cycle-callbacks.html
+import { DdzGame } from "../DdzGame"
+import { Constant } from "./Constant";
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class NewClass extends cc.Component {
+export class Room extends cc.Component {
+    @property(cc.Node)
+    myPokersNode: cc.Node = null;
 
-    @property(cc.Label)
-    label: cc.Label = null;
+    @property(cc.Node)
+    leftPokersNode: cc.Node = null;
 
-    @property
-    text: string = 'hello';
+    @property(cc.Node)
+    rightPokersNode: cc.Node = null;
 
-    // LIFE-CYCLE CALLBACKS:
+    @property(cc.Node)
+    readyBtn: cc.Node = null;
 
-    // onLoad () {}
+    @property(cc.SpriteFrame)
+    pokerSpriteFrame: cc.SpriteFrame[] = [];
 
-    start () {
+    @property(cc.Node)
+    midPoker: cc.Node = null;
+
+    allPoker: cc.Node[] = new Array();
+    //逻辑控制
+    game: any = null;
+
+    clickstate: boolean = false;
+    onLoad() {
+        for (var i = 0; i < Constant.PokerNum; i++) {
+            var node = new cc.Node();
+            //调用新建的node的addComponent函数，会返回一个sprite的对象
+            const sprite = node.addComponent(cc.Sprite);
+            sprite.spriteFrame = this.pokerSpriteFrame[54];
+            this.midPoker.addChild(node);
+            this.allPoker.push(node);
+        }
+        if (Constant.isDdz()) {
+            this.initDdz();
+        }
+        else if (Constant.isZzh()) {
+
+        }
+    }
+
+    initDdz() {
+        this.readyBtn.active = true;
+        this.game = new DdzGame();
+    }
+
+    initZzh() {
 
     }
 
-    // update (dt) {}
+    //发牌A
+    dealCardsA() {
+        this.midPoker.active = true;
+        var leftPos = [];
+        var midPos = [-178, -160];
+        var rightPos = [];
+        var time = 0.3;
+        for (var i = 0; i < this.game.pokerSize; i++) {
+            const callbackA = cc.callFunc((target, index: number) => {
+                this.allPoker[this.game.pokerSize + index].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[index];
+            }, this, i);
+            const callbackB = cc.callFunc((target, index: number) => {
+                this.allPoker[this.game.pokerSize + index].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[index];
+            }, this, i);
+            const callbackC = cc.callFunc((target, index: number) => {
+                this.allPoker[this.game.pokerSize + index].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[index];
+            }, this, i);
+            this.allPoker[i].runAction(cc.sequence(cc.delayTime(time), cc.moveTo(0.1, midPos[0], midPos[1]), callbackB));
+            this.allPoker[this.game.pokerSize + i].runAction(cc.sequence(cc.delayTime(time), cc.moveTo(0.1, midPos[0], midPos[1]), callbackB));
+            this.allPoker[2 * this.game.pokerSize + i].runAction(cc.sequence(cc.delayTime(time), cc.moveTo(0.1, midPos[0], midPos[1]), callbackB));
+            time += 0.1;
+            midPos[0] += Constant.PokerWidth / 5;
+        }
+    }
+
+    //发牌B
+    dealCardsB() {
+
+    }
+
+    //发牌特效
+    dealCardsAnim() {
+
+    }
+
+
+    //洗牌
+    shuffleCards() {
+
+    }
+
+    onClickReady() {
+        if (this.clickstate) {
+            return;
+        }
+        this.clickstate = true;
+        this.readyBtn.active = false;
+        this.midPoker.active = true;
+        this.game.startGame();
+        this.dealCardsA();
+        this.clickstate = false;
+    }
+
+    onClickQuit() {
+        if (this.clickstate) {
+            return;
+        }
+        this.clickstate = true;
+        cc.director.loadScene("Home");
+    }
 }

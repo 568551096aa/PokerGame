@@ -1,31 +1,23 @@
-// Learn TypeScript:
-//  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
-//  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/typescript.html
-// Learn Attribute:
-//  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/reference/attributes.html
-//  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/reference/attributes.html
-// Learn life-cycle callbacks:
-//  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
-//  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/life-cycle-callbacks.html
+export class Constant {
+    static DdzMode = 0;//斗地主
+    static ZzhMode = 1;//扎金花
 
-const {ccclass, property} = cc._decorator;
-
-@ccclass
-export default class NewClass extends cc.Component {
-
-    @property(cc.Label)
-    label: cc.Label = null;
-
-    @property
-    text: string = 'hello';
-
-    // LIFE-CYCLE CALLBACKS:
-
-    // onLoad () {}
-
-    start () {
-
+    //游戏模式
+    static gameMode: number = 0;
+    //版本号
+    static Version = "1.5.46";
+    //一副牌总共54张
+    static PokerNum = 54;
+    //牌的宽高
+    static PokerWidth = 105;
+    static PokerHeight = 150;
+    static isDdz() {
+        return Constant.gameMode == Constant.DdzMode;
+    }
+    static isZzh() {
+        return Constant.gameMode == Constant.ZzhMode;
     }
 
-    // update (dt) {}
+
+
 }
