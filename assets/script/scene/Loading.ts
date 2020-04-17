@@ -27,8 +27,8 @@ export class Loading extends cc.Component {
             this.processBar.progress = 1
             setTimeout(()=>{
                 this.showMenu();
-            },1000);
-        },2000)
+            },500);
+        },500)
     }
 
     showMenu(){

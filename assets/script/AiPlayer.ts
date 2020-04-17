@@ -11,6 +11,9 @@ export class AiPlayer {
     }
     //生成从minNum到maxNum的随机数
     static randomNum(minNum: number, maxNum: number) {
+        if(minNum == maxNum){
+            return minNum;
+        }
         var Range = maxNum - minNum;
         var Rand = Math.random();
         var num = minNum + Math.round(Rand * Range); //四舍五入

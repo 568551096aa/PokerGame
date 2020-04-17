@@ -18,6 +18,13 @@ export class Constant {
         return Constant.gameMode == Constant.ZzhMode;
     }
 
+    static ClickNothing = 0;
+    static ClickStart = 1;
+    static ClickMoveing = 2;
+    static ClickEnd = 3;
 
-
+    static ready = 0;
+    static selectBoss = 1;
+    static playCards = 2;
+    static connCards = 3;
 }
