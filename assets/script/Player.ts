@@ -10,9 +10,11 @@ export class Player {
 
     }
 
-    addPoker(pokers: number[]) {    }
+    addPoker(pokers: number[]) {
 
-    deletePoker(index:number[]) {
+    }
+
+    deletePoker(index: number[]) {
 
     }
 

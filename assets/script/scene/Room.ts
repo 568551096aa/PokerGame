@@ -104,8 +104,6 @@ export class Room extends cc.Component {
         this.pokerLeft = -1 * Math.floor((this.game.pokerSize * Constant.PokerWidth / 5 + Constant.PokerWidth / 4) / 2);//初始化手牌边界
         this.isSelect = new Array(this.game.pokerSize, false);
         this.isPlayed = new Array(this.game.pokerSize, false);
-
-
         this.pokerNode.active = false;
     }
 
@@ -263,6 +261,14 @@ export class Room extends cc.Component {
                 }
             }
             if (isPlayCard) {
+                var nums = new Array();
+                for (i = 0; i < this.game.pokerSize; i++) {
+                    if (this.isSelect[i]) {
+                        nums.push(this.game.players[this.game.myself][i]);
+                    }
+                }
+                var type = this.game.getPokerTypeAndLevel(nums);
+                console.log(type);
                 this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = true;
             }
             else {
@@ -349,7 +355,7 @@ export class Room extends cc.Component {
                 this.setTimerPos(id);
                 break;
             case 2:
-
+                this.connCards(id);
                 this.setTimerPos(id);
                 break;
             default:
@@ -434,11 +440,13 @@ export class Room extends cc.Component {
         this.game.pointer = 0;//轮询置为0
         console.log("出牌");
         if (id == this.game.myself) {
+            this.pokerNode.active = true;
             this.playCardNode.active = true;
             this.playCardNode.getComponent(PlayCards).init(this.game);
             this.setTimeOutId = setTimeout(() => {
                 if (!this.game.players[id].isOperate) {
-                    this.selectBossNode.active = false;
+                    this.pokerNode.active = false;
+                    this.playCardNode.active = false;
                     this.main(2, (id + 1) % 3);
                 }
                 this.game.players[id].isOperate = false;
@@ -459,11 +467,13 @@ export class Room extends cc.Component {
         this.game.state = Constant.connCards;
         console.log("接牌");
         if (id == this.game.myself) {
+            this.pokerNode.active = true;
             this.playCardNode.active = true;
             this.playCardNode.getComponent(PlayCards).init(this.game);
             this.setTimeOutId = setTimeout(() => {
                 if (!this.game.players[id].isOperate) {
-                    this.selectBossNode.active = false;
+                    this.pokerNode.active = false;
+                    this.playCardNode.active = false;
                     this.main(2, (id + 1) % 3);
                 }
                 this.game.players[id].isOperate = false;
