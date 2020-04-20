@@ -53,6 +53,7 @@ export class Room extends cc.Component {
 
     private isSelect: boolean[] = null;
     private isPlayed: boolean[] = null;//是否已打出
+    private clickIsSelect: boolean = false;
 
     onLoad() {
         for (var i = 0; i < Constant.PokerNum; i++) {
@@ -79,7 +80,7 @@ export class Room extends cc.Component {
         else if (Constant.isZzh()) {
 
         }
-        this.isSelect = new Array(this.game.pokerSize, false);
+        this.isSelect = new Array(this.game.pokerSize);
         this.game.room = this;
         this.game.init();
     }
@@ -102,9 +103,9 @@ export class Room extends cc.Component {
         this.selectBossNode.active = false;
         this.game.myself = 0;
         this.pokerLeft = -1 * Math.floor((this.game.pokerSize * Constant.PokerWidth / 5 + Constant.PokerWidth / 4) / 2);//初始化手牌边界
-        this.isSelect = new Array(this.game.pokerSize, false);
-        this.isPlayed = new Array(this.game.pokerSize, false);
-        this.pokerNode.active = false;
+        this.isSelect = new Array(this.game.pokerSie);
+        this.isPlayed = new Array(this.game.pokerSize);
+        this.clickIsSelect = false;
     }
 
     initZzh() {
@@ -142,14 +143,14 @@ export class Room extends cc.Component {
     }
 
     touchStart(event: cc.Event.EventTouch) {
-        if (this.game.state != 2) {
+        if (!this.clickIsSelect) {
             return;
         }
+        console.log("connCards");
         if (this.clickstate != Constant.ClickNothing) {
             return;
         }
         this.clickstate = Constant.ClickStart;
-
         const pos: cc.Vec2 = this.midPoker.convertToNodeSpaceAR(cc.v2(event.getLocationX(), event.getLocationY()));
         var pokerRect = new cc.Rect(this.pokerLeft, -220 - Constant.PokerHeight / 2,
             (this.game.players[this.game.myself].pokers.length - 1) * Constant.PokerWidth / 5 + Constant.PokerWidth, Constant.PokerHeight);
@@ -173,6 +174,7 @@ export class Room extends cc.Component {
         var pokerRect = new cc.Rect(this.pokerLeft, -220 - Constant.PokerHeight / 2,
             (this.game.players[this.game.myself].pokers.length - 1) * Constant.PokerWidth / 5 + Constant.PokerWidth, Constant.PokerHeight);
         var index = this.gettouchuEndIndex(pos);
+        console.log("touchend " + index);
         this.pokerEnd = index
         var touchBeg = this.pokerBeg;
         var touchEnd = this.pokerEnd;
@@ -200,7 +202,7 @@ export class Room extends cc.Component {
                 break;
             }
         }
-        for (; i <= this.game.pokerSize; i++) {
+        for (; i < this.game.pokerSize; i++) {
             if (this.isPlayed[i]) {
                 continue;
             }
@@ -228,6 +230,7 @@ export class Room extends cc.Component {
                 this.pokerEnd = this.pokerBeg;
                 this.pokerBeg = temp;
             }
+
             var beg = -1, i = 0;
             for (i = 0; i < this.game.pokerSize; i++) {
                 if (this.isPlayed[i]) {
@@ -249,7 +252,6 @@ export class Room extends cc.Component {
                 }
                 if (this.isSelect[i]) {
                     isPlayCard = true;
-
                     this.allPoker[this.game.pokerSize + i].y += 30;
                 }
                 else {
@@ -264,11 +266,17 @@ export class Room extends cc.Component {
                 var nums = new Array();
                 for (i = 0; i < this.game.pokerSize; i++) {
                     if (this.isSelect[i]) {
-                        nums.push(this.game.players[this.game.myself][i]);
+                        nums.push(this.game.players[this.game.myself].pokers[i]);
                     }
                 }
                 var type = this.game.getPokerTypeAndLevel(nums);
-                console.log(type);
+                if (type[0] != -1) {
+                    this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = false;
+                }
+                else {
+                    this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = true;
+                }
+                this.game.typeAndSize = type;
                 this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = true;
             }
             else {
@@ -310,7 +318,6 @@ export class Room extends cc.Component {
             this.allPoker[2 * this.game.pokerSize + i].runAction(cc.sequence(cc.delayTime(time), cc.moveTo(0.1, rightPos[0], rightPos[1])));
             time += 0.1;
             midPos[0] += Constant.PokerWidth / 5;
-            console.log(i);
             //发地主牌
             if (i == this.game.pokerSize - 1) {
                 var pos = [[-120, 230], [0, 230], [120, 230]];
@@ -351,12 +358,12 @@ export class Room extends cc.Component {
                 this.selectBoss(id);
                 break;
             case 1:
-                this.playCards(id);
                 this.setTimerPos(id);
+                this.playCards(id);
                 break;
             case 2:
-                this.connCards(id);
                 this.setTimerPos(id);
+                this.connCards(id);
                 break;
             default:
                 cc.director.loadScene("Home");
@@ -427,7 +434,7 @@ export class Room extends cc.Component {
                 this.setTimeOutId = setTimeout(() => {
                     this.timerStop();
                     this.main(0, (id + 1) % 3);
-                }, 1000);
+                }, 100);
             }
         }
         this.game.pointer++;
@@ -440,16 +447,14 @@ export class Room extends cc.Component {
         this.game.pointer = 0;//轮询置为0
         console.log("出牌");
         if (id == this.game.myself) {
-            this.pokerNode.active = true;
+            this.clickIsSelect = true;
             this.playCardNode.active = true;
             this.playCardNode.getComponent(PlayCards).init(this.game);
             this.setTimeOutId = setTimeout(() => {
                 if (!this.game.players[id].isOperate) {
-                    this.pokerNode.active = false;
-                    this.playCardNode.active = false;
-                    this.main(2, (id + 1) % 3);
+                    this.afterPlay(id);
                 }
-                this.game.players[id].isOperate = false;
+
             }, 20000);
         }
         else {
@@ -461,22 +466,34 @@ export class Room extends cc.Component {
         }
     }
 
+    play() {
+        var nums = new Array();
+        for (var i = 0; i < this.game.pokerSize; i++) {
+            if (this.isSelect[i]) {
+                this.isPlayed[i] = true;
+                this.allPoker[this.game.pokerSize + i].active = false;
+                nums.push(nums);
+            }
+        }
+    }
+
     //接牌
     connCards(id: number) {
+        if (this.game.pointer == 2) {
+            this.main(1, id);
+            return;
+        }
         this.timerStart();
         this.game.state = Constant.connCards;
         console.log("接牌");
         if (id == this.game.myself) {
-            this.pokerNode.active = true;
+            this.clickIsSelect = true;
             this.playCardNode.active = true;
             this.playCardNode.getComponent(PlayCards).init(this.game);
             this.setTimeOutId = setTimeout(() => {
                 if (!this.game.players[id].isOperate) {
-                    this.pokerNode.active = false;
-                    this.playCardNode.active = false;
-                    this.main(2, (id + 1) % 3);
+                    this.afterPlay(id);
                 }
-                this.game.players[id].isOperate = false;
             }, 20000);
         }
         else {
@@ -486,6 +503,17 @@ export class Room extends cc.Component {
                 this.main(2, (id + 1) % 3);
             }, 1000);
         }
+    }
+
+    afterPlay(id: number) {
+        this.clickIsSelect = false;
+        this.playCardNode.active = false;
+        this.main(2, (id + 1) % 3);
+        this.initPoker();
+        this.game.room.timerStop();
+        this.game.room.initPoker();
+        this.game.players[id].isOperate = false;
+        this.game.typeAndSize[0] = -1;
     }
 
     //设置定时器位置
@@ -520,6 +548,18 @@ export class Room extends cc.Component {
     timerStop() {
         this.timer.active = false;
         this.unschedule(this.timerFunc);
+    }
+
+    initPoker() {
+        var midPos = [this.pokerLeft + Constant.PokerWidth / 2, -220];
+        for (var i = 0; i < this.game.pokerSize; i++) {
+            this.allPoker[this.game.pokerSize + i].position = new cc.Vec2(midPos[0], midPos[1]);
+            midPos[0] += Constant.PokerWidth / 5;
+        }
+        for (var i = 0; i < this.isSelect.length; i++) {
+            this.isSelect[i] = false;
+        }
+        this.clickIsSelect = false;
     }
 
     //发牌B

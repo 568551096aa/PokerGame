@@ -17,8 +17,7 @@ export class DdzGame {
     myself: number = 0;//我的 id
     firstPlayerId: number = 0;//第一个叫牌人
     playPlayerId: number = 0;//出牌人id
-    type: number = 0;//牌的类型
-
+    typeAndSize: number[] = [-1, -1];//牌的类型和大小
 
     constructor() {
         for (var i = 0; i < 3; i++) {
@@ -89,11 +88,11 @@ export class DdzGame {
         //16 九个顺子 17 三个三张 18十张顺子 19两个三带两张 20 五个连对 21 十一个顺子 22 12个顺子
         //23 三个三代一张 24 六个连对 25七个连对 26三个三代两张 27五个三张 28四个三代一张 29 八个 两连对子
         //30 六个三张 31八个两连对子 
+        var res = [-1, -1];
         if (pokers.length == 0) {
             console.warn("错误");
-            return;
+            return res;
         }
-        var res = [-1, -1];
         var map = new Map();
         for (var i = 0; i < pokers.length; i++) {
             var num = 0;
@@ -104,16 +103,17 @@ export class DdzGame {
                 num = -1;
             }
             else {
-                num = (pokers[0] - 2) / 4;
+                num = Math.floor((pokers[i] - 2) / 4);
             }
-            if (map.has(pokers[i])) {
-                map.set(pokers[i], map.get(pokers[i]));
+            console.log(num);
+            if (map.has(num)) {
+                map.set(num, map.get(num));
             }
             else {
-                map.set(pokers[i], 1);
+                map.set(num, 1);
             }
         }
-
+        console.log(" pokers.length " + pokers.length + " map.size " + map.size);
         if (pokers.length == 1) {
             res[0] = 1;
             pokers[0] < 2 ? res[1] = pokers[0] + 54 : res[1] = pokers[0];
@@ -503,5 +503,6 @@ export class DdzGame {
                 }
             }
         }
+        return res;
     }
 }

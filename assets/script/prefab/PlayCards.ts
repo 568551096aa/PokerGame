@@ -19,10 +19,14 @@ export class PlayCards extends cc.Component {
     init(game: any) {
         this.game = game;
         //自己为出牌人 不能不出牌
-        if(this.game.state == Constant.playCards){
+        if (this.game.state == Constant.playCards) {
             this.NonPlayCardsBut.interactable = false;
+            this.PlayCardsBut.interactable = false;
         }
-        else{
+        else if (this.game.state == Constant.connCards) {
+            this.PlayCardsBut.interactable = false;
+        }
+        else {
             this.NonPlayCardsBut.interactable = true;
         }
     }
@@ -37,8 +41,7 @@ export class PlayCards extends cc.Component {
         this.game.players[this.game.myself].isOperate = true;
         clearTimeout(this.game.room.setTimeOutId);
         this.game.players[this.game.myself].isOperate = false;
-        this.game.room.timerStop();
-        this.game.room.main(1, (this.game.myself + 1) % 3);
+        this.game.room.afterPlay((this.game.myself + 1) % 3);
 
         this.clickstate = false;
     }
@@ -48,9 +51,9 @@ export class PlayCards extends cc.Component {
             return;
         }
         this.clickstate = true;
-        
 
-        
+
+
         this.clickstate = false;
     }
 
@@ -65,9 +68,8 @@ export class PlayCards extends cc.Component {
         this.game.players[this.game.myself].isOperate = true;
         clearTimeout(this.game.room.setTimeOutId);
         this.game.players[this.game.myself].isOperate = false;
-        this.game.room.timerStop();
-        this.game.room.main(1, (this.game.myself + 1) % 3);
-
+        this.game.room.play();
+        this.game.room.afterPlay((this.game.myself + 1) % 3);
         this.clickstate = false;
     }
 }

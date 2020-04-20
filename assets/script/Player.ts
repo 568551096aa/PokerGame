@@ -36,13 +36,7 @@ export class Player {
 
     //洗牌
     sortPokers() {
-        for (var i = 0; i < this.pokers.length; i++) {
-            console.log(this.pokers[i]);
-        }
         this.pokers.sort(this.compareAsc);
         console.log("soet");
-        for (var i = 0; i < this.pokers.length; i++) {
-            console.log(this.pokers[i]);
-        }
     }
 }
