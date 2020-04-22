@@ -1,5 +1,6 @@
 import { DdzGame } from "../DdzGame"
 import { Constant } from "../scene/Constant";
+import { Room } from "../scene/Room";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
@@ -15,15 +16,15 @@ export class PlayCards extends cc.Component {
 
     private clickstate: boolean = false;
     game: DdzGame = null;
-
     init(game: any) {
         this.game = game;
         //自己为出牌人 不能不出牌
-        if (this.game.state == Constant.playCards) {
+        if (this.game.state == Constant.playCard) {
             this.NonPlayCardsBut.interactable = false;
             this.PlayCardsBut.interactable = false;
         }
-        else if (this.game.state == Constant.connCards) {
+        else if (this.game.state == Constant.connCard) {
+            this.NonPlayCardsBut.interactable = true;
             this.PlayCardsBut.interactable = false;
         }
         else {
@@ -41,7 +42,7 @@ export class PlayCards extends cc.Component {
         this.game.players[this.game.myself].isOperate = true;
         clearTimeout(this.game.room.setTimeOutId);
         this.game.players[this.game.myself].isOperate = false;
-        this.game.room.afterPlay((this.game.myself + 1) % 3);
+        this.game.room.afterPlay(this.game.myself);
 
         this.clickstate = false;
     }
@@ -67,9 +68,9 @@ export class PlayCards extends cc.Component {
         this.game.pointer = 0;
         this.game.players[this.game.myself].isOperate = true;
         clearTimeout(this.game.room.setTimeOutId);
-        this.game.players[this.game.myself].isOperate = false;
-        this.game.room.play();
-        this.game.room.afterPlay((this.game.myself + 1) % 3);
+        this.game.players[this.game.myself].isOperate = false
+        this.game.room.play(this.game.myself);
+        this.game.room.afterPlay(this.game.myself);
         this.clickstate = false;
     }
 }

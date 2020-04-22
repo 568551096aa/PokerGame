@@ -25,6 +25,6 @@ export class Constant {
 
     static ready = 0;
     static selectBoss = 1;
-    static playCards = 2;
-    static connCards = 3;
+    static playCard = 2;
+    static connCard = 3;
 }

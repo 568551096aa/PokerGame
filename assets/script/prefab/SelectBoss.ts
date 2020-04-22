@@ -1,4 +1,5 @@
 import { DdzGame } from "../DdzGame"
+import { Constant } from "../scene/Constant";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
@@ -14,7 +15,7 @@ export class SelectBoss extends cc.Component {
 
     private clickstate: boolean = false;
     game: DdzGame = null;
-    
+
     init(game: any) {
         this.game = game;
         if (game.bossId == -1) {
@@ -32,14 +33,14 @@ export class SelectBoss extends cc.Component {
         this.clickstate = true;
         this.node.active = false;
         if (this.game.bossId == -1) {
-            this.game.bossId = this.game.myself; 
+            this.game.bossId = this.game.myself;
         }
         this.game.bossState[this.game.myself] = true;
         this.game.players[this.game.myself].isOperate = true;
         clearTimeout(this.game.room.setTimeOutId);
         this.game.players[this.game.myself].isOperate = false;
         this.game.room.timerStop();
-        this.game.room.main(0, (this.game.myself + 1) % 3);
+        this.game.main(Constant.selectBoss, (this.game.myself + 1) % 3);
         this.clickstate = false;
     }
 
@@ -54,7 +55,7 @@ export class SelectBoss extends cc.Component {
         this.game.players[this.game.myself].isOperate = false;
         this.game.bossState[this.game.myself] = false;
         this.game.room.timerStop();
-        this.game.room.main(0, (this.game.myself + 1) % 3);
+        this.game.main(Constant.selectBoss, (this.game.myself + 1) % 3);
         this.clickstate = false;
     }
 
