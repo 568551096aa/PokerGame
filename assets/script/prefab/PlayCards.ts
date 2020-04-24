@@ -38,12 +38,7 @@ export class PlayCards extends cc.Component {
         }
         this.clickstate = true;
         this.node.active = false;
-        this.game.pointer++;
-        this.game.players[this.game.myself].isOperate = true;
-        clearTimeout(this.game.room.setTimeOutId);
-        this.game.players[this.game.myself].isOperate = false;
-        this.game.room.afterPlay(this.game.myself);
-
+        this.game.room.playCardCalbak(this.game.myself, false);
         this.clickstate = false;
     }
 
@@ -52,9 +47,6 @@ export class PlayCards extends cc.Component {
             return;
         }
         this.clickstate = true;
-
-
-
         this.clickstate = false;
     }
 
@@ -64,13 +56,7 @@ export class PlayCards extends cc.Component {
         }
         this.clickstate = true;
         this.node.active = false;
-
-        this.game.pointer = 0;
-        this.game.players[this.game.myself].isOperate = true;
-        clearTimeout(this.game.room.setTimeOutId);
-        this.game.players[this.game.myself].isOperate = false
-        this.game.room.play(this.game.myself);
-        this.game.room.afterPlay(this.game.myself);
+        this.game.room.playCardCalbak(this.game.myself, true);
         this.clickstate = false;
     }
 }

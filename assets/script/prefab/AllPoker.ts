@@ -11,3 +11,4 @@ export class Loading extends cc.Component {
     }
 
 }
+ 

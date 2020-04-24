@@ -6,10 +6,11 @@ export class Player {
     uid: number = 0;//用户号
 
     pokers: number[] = null;//手牌
+    lastPokers: number[] = null;//最后一次出手的牌
     validPokerNum: number = 0;//剩余手牌数
     playedPokers: boolean[] = null;//记录已经出的手牌
     isBoss: boolean = false;
-
+    textType: number = 0;
     init(pokers: number[]) {
         this.validPokerNum = 17;
         this.pokers = new Array(this.validPokerNum);

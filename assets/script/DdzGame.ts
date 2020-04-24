@@ -9,7 +9,7 @@ export class DdzGame {
     players: Player[] = new Array(3);
     host: number[] = new Array(3);//地主牌
     bossState: boolean[] = new Array(3);//叫地主状态
-    lastTypeAndSize: number[] = new Array(2);
+    lastTypeAndSize: number[] = new Array(2);//上一家出牌类型和大小
     state: number = 0;//游戏状态 0准备阶段  1叫地主阶段 2出牌阶段 3接牌阶段
     pointer: number = 0//轮询判断
     bossId: number = -1;//地主id
@@ -22,6 +22,7 @@ export class DdzGame {
 
     constructor() {
         for (var i = 0; i < this.players.length; i++) {
+            console.log("初始化");
             this.players[i] = new Player();
         }
     }
@@ -44,8 +45,8 @@ export class DdzGame {
     }
 
     startGame() {
-        //this.firstPlayerId = AiPlayer.randomNum(0, 2);
-        this.firstPlayerId = 0;
+        this.firstPlayerId = AiPlayer.randomNum(0, 2);
+        //this.firstPlayerId = 0;
         this.shuffleCards();
         this.room.dealCardsA();
     }
@@ -53,15 +54,12 @@ export class DdzGame {
     main(type: number, id: number) {
         switch (type) {
             case Constant.selectBoss:
-                this.room.setTimerPos(id);
                 this.room.selectBoss(id);
                 break;
             case Constant.playCard:
-                this.room.setTimerPos(id);
                 this.room.playCard(id);
                 break;
             case Constant.connCard:
-                this.room.setTimerPos(id);
                 this.room.connCard(id);
                 break;
             default:
@@ -70,7 +68,10 @@ export class DdzGame {
         }
     }
 
+
+
     setBoss(id: number) {
+        console.log("bossId " + id);
         this.playPlayerId = id;
         this.state = Constant.playCard;
         this.players[id].setBoss(this.host);
@@ -140,6 +141,35 @@ export class DdzGame {
 
     }
 
+    //A已经出的牌 B要的牌
+    compTypeAndSize(typeA: number[], typeB: number[]) {
+        //4 炸弹  8四带2  0双王  32四带两对  
+        var res: boolean = false;
+        if (typeB[0] == 0) {
+            res = true;
+        }
+        else if (typeB[0] == 4) {
+            if (typeA[0] == 4 && typeA[1] > typeB[1]) {
+                res = true;
+            }
+        }
+        else if (typeB[0] == 8) {
+            if (typeA[0] == 8 && typeA[1] > typeB[1]) {
+                res = true;
+            }
+        }
+        else if (typeB[0] == 32) {
+            if (typeA[0] == 32 && typeA[1] > typeB[1]) {
+                res = true;
+            }
+        }
+        else if (typeA[0] == typeB[0] && typeA[1] < typeB[1]) {
+            res = true;
+        }
+        console.log("是否可以要 " + res);
+        return res;
+    }
+
     //获得牌的类型和大小
     getPokerTypeAndLevel(pokers: number[]) {
         //0双王 1单 2单对子  3单三个 4单四个 5三个带一个 6三个带两个 7 5个顺子 8 四个带两个
@@ -156,10 +186,10 @@ export class DdzGame {
         for (var i = 0; i < pokers.length; i++) {
             var num = 0;
             if (pokers[i] == 0) {
-                num = -2;
+                num = -3;
             }
             else if (pokers[i] == 1) {
-                num = -1;
+                num = -2;
             }
             else {
                 num = Math.floor((pokers[i] - 2) / 4);
@@ -174,7 +204,7 @@ export class DdzGame {
         }
         if (pokers.length == 1) {
             res[0] = 1;
-            pokers[0] < 2 ? res[1] = pokers[0] + 54 : res[1] = pokers[0];
+            pokers[0] < 2 ? res[1] = pokers[0] + 13 : res[1] = Math.floor((pokers[0] - 2) / 4);;
         }
         else if (pokers.length == 2) {
             if (map.size == 1) {
@@ -226,7 +256,7 @@ export class DdzGame {
                 });
                 if (max < 12 && max - min == 4) {
                     res[0] = 7;
-                    res[1] = max;
+                    res[1] = min;
                 }
             }
         }
@@ -234,17 +264,23 @@ export class DdzGame {
             if (map.size == 2) {
                 if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[5] - 2) / 4)) {
                     res[0] = 9;
+                    res[1] = 100;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        res[1] > key ? res[1] = key : res[1];
                     });
                 }
             }
             else if (map.size == 3) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)) {
-                    res[0] = 11;
+                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4)
+                    && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)) {
+                    var min = 100;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        min > key ? min = key : min;
                     });
+                    if (max <= 9) {
+                        res[0] = 11;
+                        res[1] = min;
+                    }
                 }
                 else {
                     map.forEach((value, key) => {
@@ -264,7 +300,7 @@ export class DdzGame {
                 });
                 if (max < 12 && max - min == 5) {
                     res[0] = 9;
-                    res[1] = max;
+                    res[1] = min;
                 }
             }
         }
@@ -277,7 +313,7 @@ export class DdzGame {
                 });
                 if (max < 12 && max - min == 6) {
                     res[0] = 12;
-                    res[1] = max;
+                    res[1] = min;
                 }
             }
         }
@@ -285,22 +321,26 @@ export class DdzGame {
             if (map.size == 4) {
                 if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4)) {
-                    res[0] = 15;
+                    var min = 20;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        min > key ? min = key : min;
                     });
+                    if (max < 12) {
+                        res[0] = 11;
+                        res[1] = min;
+                    }
                 }
                 else {
                     map.forEach((value, key) => {
                         if (value == 3) {
                             if (map.get(key + 1) == 3) {
                                 res[0] = 14;
-                                res[1] = key + 1;
+                                res[1] = key;
                                 return;
                             }
                             else if (map.get(key - 1) == 3) {
                                 res[0] = 14;
-                                res[1] = key;
+                                res[1] = key - 1;
                                 return;
                             }
                         }
@@ -324,7 +364,7 @@ export class DdzGame {
                 });
                 if (max < 12 && max - min == 7) {
                     res[0] = 13;
-                    res[1] = max;
+                    res[1] = min;
                 }
             }
         }
@@ -332,8 +372,9 @@ export class DdzGame {
             if (map.size == 3) {
                 if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[3] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[6] - 2) / 4)) {
                     res[0] = 17;
+                    res[1] = 100;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        res[1] > key ? res[1] = key : res[1];
                     });
                 }
             }
@@ -345,7 +386,7 @@ export class DdzGame {
                 });
                 if (max < 12 && max - min == 8) {
                     res[0] = 16;
-                    res[1] = max;
+                    res[1] = min;
                 }
             }
         }
@@ -369,17 +410,21 @@ export class DdzGame {
                 if (threeNum == 2 && twoNum == 2) {
                     if (valid[0] == valid[1] + 1 || valid[0] == valid[1] - 1) {
                         res[0] = 19;
-                        res[1] = valid[0] > valid[1] ? valid[0] : valid[1];
+                        res[1] = valid[0] < valid[1] ? valid[0] : valid[1];
                     }
                 }
             }
             else if (map.size == 5) {
                 if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[8] - 2) / 4)) {
-                    res[0] = 20;
+                    var min = 20;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        min > key ? min = key : min;
                     });
+                    if (min <= 7) {
+                        res[0] = 20;
+                        res[1] = min;
+                    }
                 }
             }
             else if (map.size == 10) {
@@ -390,7 +435,7 @@ export class DdzGame {
                 });
                 if (max < 12 && max - min == 9) {
                     res[0] = 18;
-                    res[1] = max;
+                    res[1] = min;
                 }
             }
         }
@@ -403,7 +448,7 @@ export class DdzGame {
                 });
                 if (max < 12 && max - min == 10) {
                     res[0] = 21;
-                    res[1] = max;
+                    res[1] = min;
                 }
             }
         }
@@ -412,8 +457,9 @@ export class DdzGame {
                 if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[3] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[6] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[9] - 2) / 4)) {
                     res[0] = 25;
+                    res[1] = 200;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        res[1] > key ? res[1] = key : res[1];
                     });
                 }
             }
@@ -421,34 +467,38 @@ export class DdzGame {
                 if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[8] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 5 == Math.floor((pokers[10] - 2) / 4)) {
-                    res[0] = 24;
+                    var min = 20;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        min > key ? min = key : min;
                     });
+                    if (min < 7) {
+                        res[0] = 24;
+                        res[1] = min;
+                    }
                 }
                 else {
                     map.forEach((value, key) => {
                         if (value == 3) {
                             if (map.get(key + 1) == 3 && map.get(key + 2) == 3) {
                                 res[0] = 23;
-                                res[1] = key + 1;
+                                res[1] = key;
                                 return;
                             }
                             else if (map.get(key - 1) == 3 && map.get(key + 1) == 3) {
                                 res[0] = 23;
-                                res[1] = key;
+                                res[1] = key - 1;
                                 return;
                             }
                             else if (map.get(key - 1) == 3 && map.get(key - 2) == 3) {
                                 res[0] = 23;
-                                res[1] = key;
+                                res[1] = key - 2;
                                 return;
                             }
                         }
                     });
                 }
             }
-            else if (max < 12 && map.size == 12) {
+            else if (min < 11 && map.size == 12) {
                 var max = -1, min = 20;
                 map.forEach((value, key) => {
                     max < key ? max = key : max;
@@ -456,7 +506,7 @@ export class DdzGame {
                 });
                 if (max < 12 && max - min == 11) {
                     res[0] = 22;
-                    res[1] = max;
+                    res[1] = min;
                 }
             }
         }
@@ -465,10 +515,14 @@ export class DdzGame {
                 if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[8] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 5 == Math.floor((pokers[10] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 6 == Math.floor((pokers[12] - 2) / 4)) {
-                    res[0] = 26;
+                    var min = 0;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        min > key ? min = key : min;
                     });
+                    if (min < 6) {
+                        res[0] = 26;
+                        res[1] = min;
+                    }
                 }
             }
         }
@@ -477,8 +531,9 @@ export class DdzGame {
                 if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[3] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[6] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[9] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[12] - 2) / 4)) {
                     res[0] = 27;
+                    res[1] = 20;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        res[1] > key ? res[1] = key : res[1];
                     });
                 }
             }
@@ -502,7 +557,7 @@ export class DdzGame {
                     valid.sort();
                     if (valid[0] + 1 == valid[1] && valid[0] + 2 == valid[2]) {
                         res[0] = 26;
-                        res[1] = valid[2];
+                        res[1] = valid[0];
                     }
                 }
             }
@@ -513,10 +568,14 @@ export class DdzGame {
                     && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[8] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 5 == Math.floor((pokers[10] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 6 == Math.floor((pokers[12] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 6 == Math.floor((pokers[14] - 2) / 4)) {
-                    res[0] = 29;
+                    var min = 20;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        min > key ? min = key : min;
                     });
+                    if (min <= 4) {
+                        res[0] = 29;
+                        res[1] = min;
+                    }
                 }
                 else {
                     var valid = [0, 0, 0, 0];
@@ -533,7 +592,7 @@ export class DdzGame {
                         valid.sort();
                         if (valid[0] + 1 == valid[1] && valid[0] + 2 == valid[2] && valid[0] + 3 == valid[3]) {
                             res[0] = 28;
-                            res[1] = valid[2];
+                            res[1] = valid[0];
                         }
                     }
                 }
@@ -555,7 +614,7 @@ export class DdzGame {
                     valid.sort();
                     if (valid[0] + 5 == valid[5]) {
                         res[0] = 30;
-                        res[1] = valid[5];
+                        res[1] = valid[0];
                     }
                 }
             }
@@ -564,13 +623,19 @@ export class DdzGame {
                     && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[8] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 5 == Math.floor((pokers[10] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 6 == Math.floor((pokers[12] - 2) / 4)
                     && Math.floor((pokers[0] - 2) / 4) + 7 == Math.floor((pokers[14] - 2) / 4)) {
-                    res[0] = 31;
+                    var min = 20;
                     map.forEach((value, key) => {
-                        res[1] < key ? res[1] = key : res[1];
+                        min > key ? min = key : min;
                     });
+                    if (min <= 4) {
+                        res[0] = 31;
+                        res[1] = min;
+                    }
                 }
             }
         }
         return res;
     }
+
+
 }

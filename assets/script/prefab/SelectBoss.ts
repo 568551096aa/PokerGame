@@ -16,13 +16,17 @@ export class SelectBoss extends cc.Component {
     private clickstate: boolean = false;
     game: DdzGame = null;
 
+    private type: number = 0;
+
     init(game: any) {
         this.game = game;
         if (game.bossId == -1) {
             this.SelectText.string = "叫地主";
+            this.type = 1;
         }
         else {
             this.SelectText.string = "抢地主";
+            this.type = 2;
         }
     }
 
@@ -32,15 +36,7 @@ export class SelectBoss extends cc.Component {
         }
         this.clickstate = true;
         this.node.active = false;
-        if (this.game.bossId == -1) {
-            this.game.bossId = this.game.myself;
-        }
-        this.game.bossState[this.game.myself] = true;
-        this.game.players[this.game.myself].isOperate = true;
-        clearTimeout(this.game.room.setTimeOutId);
-        this.game.players[this.game.myself].isOperate = false;
-        this.game.room.timerStop();
-        this.game.main(Constant.selectBoss, (this.game.myself + 1) % 3);
+        this.game.room.selectBossCalbak(this.game.myself, true);
         this.clickstate = false;
     }
 
@@ -50,12 +46,7 @@ export class SelectBoss extends cc.Component {
         }
         this.clickstate = true;
         this.node.active = false;
-        this.game.players[this.game.myself].isOperate = true;
-        clearTimeout(this.game.room.setTimeOutId);
-        this.game.players[this.game.myself].isOperate = false;
-        this.game.bossState[this.game.myself] = false;
-        this.game.room.timerStop();
-        this.game.main(Constant.selectBoss, (this.game.myself + 1) % 3);
+        this.game.room.selectBossCalbak(this.game.myself, false);
         this.clickstate = false;
     }
 
