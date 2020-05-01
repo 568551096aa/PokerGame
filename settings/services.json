@@ -20,10 +20,11 @@
 				"iOS",
 				"HTML5"
 			],
-			"package_download_url": "https://download.cocos.com/CocosServices/plugins/service-analytics/1.2.6_2.1.1.zip",
-			"package_version_desc": "<p><strong>更新日期：</strong> 2020/04/15<br />\n<strong>更新说明：</strong><br />\n1、修复发布微信小游戏勾选引擎分离选项导致 Analytics 集成失败的问题。<br />\n",
+			"package_download_url": "https://download.cocos.com/CocosServices/plugins/service-analytics/1.2.7_2.1.2.zip",
+			"package_version_desc": "<p><strong>更新日期：</strong> 2020/04/29<br />\n<strong>更新说明：</strong><br />\n1.修复重复点击重新加载云岚插件导致 Creator 插件系统报错的问题。<br />\n2.修复网络重试导致的性能损耗问题。<br />\n3.更新 cocosanalytics.d.ts 语法提示文档。<br />\n4.更新 SDK 版本。<br />\n",
 			"service_component_name": "service-analytics",
 			"package_versions": [
+				"1.2.7_2.1.2",
 				"1.2.6_2.1.1",
 				"1.2.5_2.1.1",
 				"1.2.3_2.1.1",
