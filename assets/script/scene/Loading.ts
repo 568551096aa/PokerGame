@@ -1,6 +1,7 @@
 import { GameMode } from "./GameMode"
 import { Http } from "../serve/Http";
 import { socket } from "../serve/Socket";
+import { Constant } from "./Constant";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
@@ -22,7 +23,7 @@ export class Loading extends cc.Component {
     gameModePrefab: cc.Prefab = null;
     async onLoad() {
 
-        var res = await Http.httpPost("http://192.168.2.127:3000", JSON.stringify({ rar: "dfs" }));
+        var res = await Http.httpPost("http://192.168.2.127:3000", JSON.stringify({ id: Constant.MINUS_GOLD, uid: 1, num: 5 }));
 
         socket.tryConnect();
 

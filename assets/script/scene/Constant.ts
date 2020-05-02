@@ -53,4 +53,9 @@ export class Constant {
     static VERSION = "1.0"; //游戏版本号
     static TEAM_PLAYER_NUMBER = 5;
 
+    static GET_GOLD = 0;
+    static ADD_GOLD = 1;
+    static MINUS_GOLD = 2;
+    static LOGININ = 3;//登录
+    static REGISTER = 4;//注册
 }
