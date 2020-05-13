@@ -1,4 +1,5 @@
 import { Constant } from "./Constant";
+import { socket } from "../serve/Socket";
 
 const { ccclass, property } = cc._decorator;
 
@@ -17,6 +18,7 @@ export class Loading extends cc.Component {
     clickstate: boolean = false;
 
     onLoad() {
+        socket.tryConnect();
 
     }
 
@@ -25,8 +27,9 @@ export class Loading extends cc.Component {
             return;
         }
         this.clickstate = true;
-        Constant.gameMode = Constant.DdzMode;
-        cc.director.loadScene("Room");
+        Constant.gameMode = Constant.DdzMode; 
+        socket.bind();
+        cc.director.loadScene("netDDZ");
     }
 
     onClickQuit() {

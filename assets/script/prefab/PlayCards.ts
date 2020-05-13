@@ -14,8 +14,10 @@ export class PlayCards extends cc.Component {
     @property(cc.Button)
     PlayCardsBut: cc.Button = null;
 
+    state: number = 0;//0出牌 1接牌
+
     private clickstate: boolean = false;
-    game: DdzGame = null;
+    game: any = null;
     init(game: any) {
         this.game = game;
         //自己为出牌人 不能不出牌
@@ -38,7 +40,18 @@ export class PlayCards extends cc.Component {
         }
         this.clickstate = true;
         this.node.active = false;
-        this.game.room.playCardCalbak(this.game.myself, false);
+        if (1) {
+            if (this.state == 0) {
+                this.game.room.playCardComm();
+            }
+            else {
+                this.game.room.connCardComm();
+            }
+        }
+        else {
+            this.game.room.playCardCalbak(this.game.myself, false);
+        }
+
         this.clickstate = false;
     }
 
@@ -56,7 +69,21 @@ export class PlayCards extends cc.Component {
         }
         this.clickstate = true;
         this.node.active = false;
-        this.game.room.playCardCalbak(this.game.myself, true);
+
+        if (1) {
+            if (this.state == 0) {
+                this.game.room.playCardComm();
+            }
+            else {
+                this.game.room.connCardComm();
+            }
+        }
+        else {
+            this.game.room.playCardCalbak(this.game.myself, true);
+        }
+
+
+
         this.clickstate = false;
     }
 }

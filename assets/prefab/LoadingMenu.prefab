@@ -1481,6 +1481,12 @@
     "localBut": {
       "__id__": 34
     },
+    "signinPrefab": {
+      "__uuid__": "ace06c7b-4c78-44da-bcd4-a868ded3320d"
+    },
+    "registerPrefab": {
+      "__uuid__": "e4370c6e-a6b0-4165-a800-9de1492016db"
+    },
     "_id": ""
   },
   {

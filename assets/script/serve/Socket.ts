@@ -66,7 +66,7 @@ export class Socket {
 
     //外部调用request发起请求，先检测是否bind，没有则先bind再发请求
     //连接未建立则返回null，请求失败返回header(里面有错误信息)，请求成功返回body
-    async request(commandId: string, body: any): Promise<any> {
+    async request(commandId: number, body: any): Promise<any> {
         await this.checkBind();
         if (this.binded) {
             return this.sendMessage(commandId, body);
@@ -77,21 +77,19 @@ export class Socket {
 
     private async checkBind() {
         if (!this.binded) {
-            const bindMessage = await this.sendMessage("", "");
-            console.log("bindMessage " + bindMessage);
-            if (bindMessage) {
-                this.binded = true;
-                //bind成功后检测是否需要恢复团战和加入团战邀请
-                this.heartBeatHandler = setInterval(() => {
-                    console.log("开始发送心跳");
-                    this.sendMessage("", "");
-                }, 3000);
-            }
+            //const bindMessage = await this.sendMessage(Constant.COMMAND_BIND, "");
+            //console.log("bindMessage " + bindMessage);
+            this.binded = true;
+            //bind成功后检测是否需要恢复团战和加入团战邀请
+            this.heartBeatHandler = setInterval(() => {
+                console.log("开始发送心跳");
+                this.sendMessage(Constant.COMMAND_HEART_BEAT, "");
+            }, 3000);
         }
     }
 
     //同步发起网络请求，每个请求分配packetId，创建promise并保存在pending中，待promise返回则表示请求已经完成
-    private async sendMessage(commandId: string, body: any): Promise<any> {
+    private async sendMessage(commandId: number, body: any): Promise<any> {
         //连接还未完成则尝试重连并返回
         if (!this.opened) {
             console.warn("websocket 连接没有建立");
@@ -99,7 +97,7 @@ export class Socket {
             return Promise.resolve(null);
         }
 
-        if (commandId != "heartbeat") {
+        if (commandId != Constant.COMMAND_HEART_BEAT) {
             console.warn(`websocket 发送${commandId}请求, body:`, body);
         }
 
@@ -107,6 +105,7 @@ export class Socket {
             header: {
                 command_id: commandId,
                 packet_id: ++this.packetId,
+                uid: 0,
             },
             body: JSON.stringify(body),
         };
@@ -150,14 +149,72 @@ export class Socket {
         if (!body) {
             return;
         }
+        console.log("接受信息 " + body);
         const commandId = header.command_id;
         switch (commandId) {
-            case 0:
-                //cc.director.emit(TeamConstant.eventTeamInfoChange, body.group_info);
+            case Constant.COMMAND_BIND:
+                Constant.id = body.id;
+                break;
+            case Constant.COMMAND_STARTGAME:
+                cc.director.emit(Constant.COMMAND_STARTGAME.toString(),);
+                break;
+            case Constant.COMMAND_OPESELECTBOSS:
+                cc.director.emit(Constant.COMMAND_OPESELECTBOSS.toString(), body.group_info);
+                break;
+            case Constant.COMMAND_OPERPLAYCARD:
+                cc.director.emit(Constant.COMMAND_OPERPLAYCARD.toString(), body.group_info);
+                break;
+            case Constant.COMMAND_OPERCONNCARD:
+                cc.director.emit(Constant.COMMAND_OPERCONNCARD.toString(), body.group_info);
+                break;
+            case Constant.COMMAND_RECONN:
+                cc.director.emit(Constant.COMMAND_RECONN.toString(), body.group_info);
+                break;
+            case Constant.COMMAND_GMAEEND:
+                cc.director.emit(Constant.COMMAND_GMAEEND.toString(), body.group_info);
+                break;
+            case Constant.COMMAND_SETBOSS:
+                cc.director.emit(Constant.COMMAND_SETBOSS.toString(), body.group_info);
                 break;
         }
     }
 
+    //static COMMAND_SELECTBOSS = 8;//主动叫地主操作
+    //static COMMAND_PLAYCARD = 9;//主动出牌操作
+    //static COMMAND_CONNCARD = 10;//主动接牌操作
+    //static COMMAND_LEAVEROOM = 11;//离开房间
+
+    bind() {
+        console.log("send-1");
+        this.sendMessage(Constant.COMMAND_BIND, {});
+    }
+
+    ready() {
+        console.log("send0");
+        this.sendMessage(Constant.COMMAND_READY, { id: Constant.id });
+    }
+
+    selectBoss(id: number, isBoss: boolean) {
+        console.log("send1");
+        this.sendMessage(Constant.COMMAND_SELECTBOSS, { id: id, isBoss: isBoss });
+    }
+
+    playCard(id: number, pokers: number[]) {
+        console.log("send2");
+        this.sendMessage(Constant.COMMAND_SELECTBOSS, { id: id, pokers: pokers });
+    }
+
+    connCard(id: number, pokers: number[]) {
+        console.log("send3");
+        this.sendMessage(Constant.COMMAND_CONNCARD, { id: id, pokers: pokers });
+    }
+
+    LeaveRoom() {
+        this.sendMessage(Constant.COMMAND_LEAVEROOM, {});
+    }
 }
+
+
+
 
 export const socket = new Socket();

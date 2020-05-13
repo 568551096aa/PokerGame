@@ -3,6 +3,7 @@ import { Player } from "./Player"
 import { Room } from "./scene/Room"
 import { Constant } from "./scene/Constant";
 import { AiPlayer } from "./AiPlayer";
+
 export class DdzGame {
     //一副牌 1 2 大小鬼 3以后通过黑美心 红心 黑梅花  红方块交替存放 最后是A 和 2
     allPokers: number[] = new Array(Constant.PokerNum);
@@ -182,7 +183,7 @@ export class DdzGame {
             console.warn("错误");
             return res;
         }
-        var map = new Map();
+        var map = new Map<number,number>();
         for (var i = 0; i < pokers.length; i++) {
             var num = 0;
             if (pokers[i] == 0) {

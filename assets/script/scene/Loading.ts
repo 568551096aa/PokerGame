@@ -23,22 +23,26 @@ export class Loading extends cc.Component {
     gameModePrefab: cc.Prefab = null;
     async onLoad() {
 
-        var res = await Http.httpPost("http://192.168.2.127:3000", JSON.stringify({ id: Constant.MINUS_GOLD, uid: 1, num: 5 }));
+        /*var res = await Http.httpPost("http://192.168.2.127:3000", JSON.stringify({
+            id: Constant.MINUS_GOLD, uid: 1, num:
+                "static COMMAND_OPESELECTBOSS = 1;自动不叫static COMMAND_OPERPLAYCARD = 2;自动出牌static COMMAND_OPERCONNCARD = 3;自动接static COMMAND_RECONN = 4;重新连static COMMAND_GMAEEND = 5;游戏结static COMMAND_MAIN = 6;游戏控制 static COMMAND_SETBOSS = 7;游戏控制        static COMMAND_SELECTBOSS = 8;主动叫地主操        static COMMAND_PLAYCARD = 9;主动出牌操作        static COMMAND_CONNCARD = 10;主动接牌操作       static COMMAND_LEAVEROOM = 11;离开房间"
+        }));*/
+        //console.log(res);
 
-        socket.tryConnect();
 
-        console.log(res);
 
-        setTimeout(() => {
+        
+        this.showMenu();
+        /*setTimeout(() => {
             setTimeout(() => {
                 this.processBar.progress = 0.5;
             }, 1000);
             this.configLabel.string = "加载完成";
             this.processBar.progress = 1
             setTimeout(() => {
-                this.showMenu();
-            }, 500);
-        }, 500)
+                
+            }, 10);
+        }, 10)*/
 
 
 
@@ -49,6 +53,5 @@ export class Loading extends cc.Component {
         this.menuNode.active = true;
         const node = cc.instantiate(this.gameModePrefab);
         this.menuNode.addChild(node);
-
     }
 }

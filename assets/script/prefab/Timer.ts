@@ -23,7 +23,9 @@ export class Timer extends cc.Component {
 
     timerFunc() {
         this.Num.string = this.time.toString();
-        this.time--;
+        if(this.time != 0){
+            this.time--;
+        }
     }
 
     timerStop() {

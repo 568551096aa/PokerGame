@@ -14,7 +14,7 @@ export class SelectBoss extends cc.Component {
     SelectText: cc.Label = null;
 
     private clickstate: boolean = false;
-    game: DdzGame = null;
+    game: any = null;
 
     private type: number = 0;
 
@@ -36,7 +36,16 @@ export class SelectBoss extends cc.Component {
         }
         this.clickstate = true;
         this.node.active = false;
-        this.game.room.selectBossCalbak(this.game.myself, true);
+
+        if (1) {
+            this.game.selectBossComm(this.game.myself, true);
+        }
+        else {
+            this.game.room.selectBossCalbak(this.game.myself, true);
+        }
+
+
+
         this.clickstate = false;
     }
 
@@ -46,7 +55,12 @@ export class SelectBoss extends cc.Component {
         }
         this.clickstate = true;
         this.node.active = false;
-        this.game.room.selectBossCalbak(this.game.myself, false);
+        if (1) {
+            this.game.selectBossComm(this.game.myself, false);
+        }
+        else {
+            this.game.room.selectBossCalbak(this.game.myself, false);
+        }
         this.clickstate = false;
     }
 
