@@ -1,0 +1,31 @@
+{
+  "ver": "2.2.0",
+  "uuid": "d5e657e4-4e81-4afe-8bbd-90938d25f6d3",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "subMetas": {
+    "GolaICon": {
+      "ver": "1.0.4",
+      "uuid": "95e47091-2610-4285-a78e-70dd51d2010b",
+      "rawTextureUuid": "d5e657e4-4e81-4afe-8bbd-90938d25f6d3",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 11,
+      "trimX": 88,
+      "trimY": 42,
+      "width": 434,
+      "height": 504,
+      "rawWidth": 610,
+      "rawHeight": 610,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

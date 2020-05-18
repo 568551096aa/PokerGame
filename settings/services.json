@@ -7,7 +7,7 @@
 		{
 			"service_id": "235",
 			"service_name": "Cocos Analytics",
-			"service_icon": "https://account.cocos.com/uploads/client_icon/2019-01-01/3f8f31ccf66995e183044f167c092395.png",
+			"service_icon": "https://account.cocos.com/CocosUdc/client/872b94af2e/3f8f31ccf66995e183044f167c092395.png",
 			"service_desc": "一键集成，快速定位游戏玩家。统计更准确、数据更安全、接入更简单",
 			"service_title": "精准了解游戏的新增、活跃、留存、付费等数据",
 			"service_guide_url": "https://n-analytics.cocos.com/docs/",
@@ -47,10 +47,10 @@
 		{
 			"service_id": "241",
 			"service_name": "Matchvs",
-			"service_icon": "https://account.cocos.com/uploads/client_icon/2019-01-01/14406719a07eb3d714d36e5edc6e06fa.png",
+			"service_icon": "https://account.cocos.com/CocosUdc/client/872b94af2e/14406719a07eb3d714d36e5edc6e06fa.png",
 			"service_desc": "通过SDK接入快速实现联网功能、帧同步、国内外多节点、服务器独立部署、gameServer自定义游戏服务端逻辑。",
 			"service_title": "专业成熟的移动游戏联网与服务端解决方案",
-			"service_guide_url": "http://doc.matchvs.com/QuickStart/QuickStart-CocosCreator",
+			"service_guide_url": "https://docs.cocos.com/creator/manual/zh/cocos-service/matchvs.html",
 			"service_sample_url": "http://www.matchvs.com/serviceCourse",
 			"service_dev_url": "http://www.matchvs.com/cocosLogin",
 			"service_type": "3",
@@ -81,7 +81,7 @@
 		{
 			"service_id": "242",
 			"service_name": "Agora Voice",
-			"service_icon": "https://account.cocos.com/uploads/client_icon/2019-07-16/273952d155b4cdb72d2b1bc61de91ade.png",
+			"service_icon": "https://account.cocos.com/CocosUdc/client/0ed3b350b5/273952d155b4cdb72d2b1bc61de91ade.png",
 			"service_desc": "稳定、低耗、76ms超低延时、全球200+数据中心覆盖；变声器、超高音质、听声辩位等丰富玩法极速接入；全平台支持：Android、iOS、Web。",
 			"service_title": "游戏内置实时语音",
 			"service_guide_url": "https://docs.agora.io/cn/Interactive Gaming/game_c?platform=Cocos Creator",

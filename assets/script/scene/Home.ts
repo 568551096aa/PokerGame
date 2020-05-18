@@ -10,16 +10,20 @@ export class Loading extends cc.Component {
     DdzzBut: cc.Button = null;
 
     @property(cc.Button)
-    ZzhBut: cc.Button = null;
+    settingBut: cc.Button = null;
 
     @property(cc.Button)
-    localBut: cc.Button = null;
+    quitBut: cc.Button = null;
+
+    @property(cc.Label)
+    goldNumLabel: cc.Label = null;
+
 
     clickstate: boolean = false;
 
     onLoad() {
         socket.tryConnect();
-
+        this.goldNumLabel.string = Constant.gold.toString();
     }
 
     onClickDdz() {
@@ -27,9 +31,19 @@ export class Loading extends cc.Component {
             return;
         }
         this.clickstate = true;
-        Constant.gameMode = Constant.DdzMode; 
+        Constant.gameMode = Constant.DdzMode;
         socket.bind();
         cc.director.loadScene("netDDZ");
+    }
+
+    onClicksettingBut() {
+        if (this.clickstate) {
+            return;
+        }
+        this.clickstate = true;
+        
+        
+        this.clickstate = false;
     }
 
     onClickQuit() {

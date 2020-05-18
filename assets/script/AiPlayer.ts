@@ -36,9 +36,9 @@ export class AiPlayer {
 
         //牌分为组合类型的牌  非组合类型的牌
         //组合类型 3-9连对 1-6三带一或二 5-12顺子     非组合 单 双王 四带两个或两对 
-        var map = new map();
+        var map = new Map();
         var i = 0;
-        for (var i = 0; i < pokers.length; i++) {
+        for (i = 0; i < pokers.length; i++) {
             var num = 0;
             if (pokers[i] == 0) {
                 num = -3;

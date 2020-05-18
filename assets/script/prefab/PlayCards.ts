@@ -40,16 +40,11 @@ export class PlayCards extends cc.Component {
         }
         this.clickstate = true;
         this.node.active = false;
-        if (1) {
-            if (this.state == 0) {
-                this.game.room.playCardComm();
-            }
-            else {
-                this.game.room.connCardComm();
-            }
+        if (Constant.isLxDdz()) {
+            this.game.room.playCardCalbak(this.game.myself, false);
         }
         else {
-            this.game.room.playCardCalbak(this.game.myself, false);
+            this.game.playCardComm();
         }
 
         this.clickstate = false;
@@ -70,20 +65,12 @@ export class PlayCards extends cc.Component {
         this.clickstate = true;
         this.node.active = false;
 
-        if (1) {
-            if (this.state == 0) {
-                this.game.room.playCardComm();
-            }
-            else {
-                this.game.room.connCardComm();
-            }
-        }
-        else {
+        if (Constant.isLxDdz()) {
             this.game.room.playCardCalbak(this.game.myself, true);
         }
-
-
-
+        else {
+            this.game.playCardComm();
+        }
         this.clickstate = false;
     }
 }

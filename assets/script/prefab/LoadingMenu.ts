@@ -34,11 +34,11 @@ export class Loading extends cc.Component {
             return;
         }
         this.clickstate = true;
-        Constant.gameMode = Constant.DdzMode;
-        cc.director.loadScene("Home");
 
-        //const node = cc.instantiate(this.signinPrefab);
-        //this.node.addChild(node);
+        const node = cc.instantiate(this.signinPrefab);
+        this.node.addChild(node);
+
+        this.clickstate = false;
     }
 
     onClickRegister() {
@@ -46,6 +46,7 @@ export class Loading extends cc.Component {
             return;
         }
         this.clickstate = true;
+        
         const node = cc.instantiate(this.registerPrefab);
         this.node.addChild(node);
 

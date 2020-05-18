@@ -4,14 +4,23 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class SelectBoss extends cc.Component {
-    @property(cc.Button)
-    SelectBut: cc.Button = null;
+    @property(cc.Node)
+    SelectBut: cc.Node = null;
 
-    @property(cc.Button)
-    GiveupBut: cc.Button = null;
+    @property(cc.Node)
+    GiveupBut: cc.Node = null;
 
-    @property(cc.Label)
-    SelectText: cc.Label = null;
+    @property(cc.SpriteFrame)
+    qiangBoss: cc.SpriteFrame = null;
+
+    @property(cc.SpriteFrame)
+    jiaoBoss: cc.SpriteFrame = null;
+
+    @property(cc.SpriteFrame)
+    giveupBoss: cc.SpriteFrame = null;
+
+
+    
 
     private clickstate: boolean = false;
     game: any = null;
@@ -21,11 +30,11 @@ export class SelectBoss extends cc.Component {
     init(game: any) {
         this.game = game;
         if (game.bossId == -1) {
-            this.SelectText.string = "叫地主";
+            this.SelectBut.getComponent(cc.Sprite).spriteFrame = this.jiaoBoss;
             this.type = 1;
         }
         else {
-            this.SelectText.string = "抢地主";
+            this.SelectBut.getComponent(cc.Sprite).spriteFrame = this.qiangBoss;
             this.type = 2;
         }
     }
@@ -37,11 +46,11 @@ export class SelectBoss extends cc.Component {
         this.clickstate = true;
         this.node.active = false;
 
-        if (1) {
-            this.game.selectBossComm(this.game.myself, true);
+        if (Constant.isLxDdz()) {
+            this.game.room.selectBossCalbak(this.game.myself, true);
         }
         else {
-            this.game.room.selectBossCalbak(this.game.myself, true);
+            this.game.selectBossComm(this.game.myself, true);
         }
 
 
@@ -55,11 +64,11 @@ export class SelectBoss extends cc.Component {
         }
         this.clickstate = true;
         this.node.active = false;
-        if (1) {
-            this.game.selectBossComm(this.game.myself, false);
+        if (Constant.isLxDdz()) {
+            this.game.room.selectBossCalbak(this.game.myself, false);
         }
         else {
-            this.game.room.selectBossCalbak(this.game.myself, false);
+            this.game.selectBossComm(this.game.myself, false);
         }
         this.clickstate = false;
     }

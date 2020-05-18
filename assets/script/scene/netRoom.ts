@@ -47,6 +47,9 @@ export class Room extends cc.Component {
     @property(cc.Label)
     loding: cc.Label = null;
 
+    @property(cc.Label)
+    goldLabel: cc.Label = null;
+
     private playCardNode: cc.Node = null;
     private selectBossNode: cc.Node = null;
     private timerNode: cc.Node = null;
@@ -88,10 +91,9 @@ export class Room extends cc.Component {
             this.allPoker.push(node);
         }
         ///if (Constant.isLxDdz()) {
-        if (1) {
+        if (Constant.isDdz()) {
             this.playCardNode = cc.instantiate(this.playCardPrefab);
             this.alerNode.addChild(this.playCardNode);
-
             this.selectBossNode = cc.instantiate(this.selectBossPrefab);
             this.alerNode.addChild(this.selectBossNode);
 
@@ -121,7 +123,7 @@ export class Room extends cc.Component {
         }
         this.midPoker.active = false;
         //if (Constant.isLxDdz()) {
-        if (1) {
+        if (Constant.isDdz()) {
             this.initDdz();
         }
         else if (Constant.isZzh()) {
@@ -170,6 +172,7 @@ export class Room extends cc.Component {
             console.log("初始化");
             this.players[i] = new Player();
         }
+        this.goldLabel.string = Constant.gold.toString();
     }
 
     initZzh() {
@@ -198,15 +201,17 @@ export class Room extends cc.Component {
             }
             //设置地主牌
             this.host = this.allPokers.slice(index, index + this.host.length);
+
         }
         else if (Constant.isZzh()) {
 
         }
+        this.goldLabel.string = Constant.gold.toString();
     }
 
     startGame(data) {
         //数据同步
-    
+        this.loding.node.active = false;
         this.players[this.myself].pokers = data.pokers;
         this.firstPlayerId = data.firstPlayerId;
         //发牌开始

@@ -13,15 +13,16 @@ export class Http {
             xhr.send(params);
 
             xhr.onload = e => {
-                console.log('request success');
+
             };
             // 请求结束
             xhr.onloadend = e => {
+                console.log('request success');
                 let res = null;
                 if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
-                    res = JSON.parse(xhr.response);
+                    res = xhr.response;
                 }
-                resolve(res);
+                resolve(JSON.parse(res));
             };
             // 请求出错
             xhr.onerror = e => {

@@ -89,11 +89,15 @@ export class Constant {
 
     static URL = "http://192.168.2.127:3000";
 
-    static httpSignIn = 0;
-    static httpRegister = 1;
+    static httpGetgold = 0;
+    static httpAddgold = 1;
+    static httpMinusold = 2;
+    static httpSignIn = 3;
+    static httpRegister = 4;
+
+
 
     static uid = 0;
     static gold = 0;
-
     static id = 0;
 }

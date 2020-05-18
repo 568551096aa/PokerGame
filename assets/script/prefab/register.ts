@@ -12,9 +12,6 @@ export class register extends cc.Component {
     @property(cc.EditBox)
     passEdit: cc.EditBox = null;
 
-    @property(cc.EditBox)
-    rePassEdit: cc.EditBox = null;
-
     @property(cc.Button)
     confirmBtn: cc.Button = null;
 
@@ -22,6 +19,10 @@ export class register extends cc.Component {
     cancelBtn: cc.Button = null;
 
     clickstate: boolean = false;
+
+    @property(cc.Prefab)
+    signinPrefab: cc.Prefab = null;
+
 
     onLoad() {
 
@@ -33,13 +34,20 @@ export class register extends cc.Component {
         }
         this.clickstate = true;
         var user = Number(this.userEdit.string);
-        var pass = Number(this.userEdit.string);
+        var pass = Number(this.passEdit.string);
         var res = await Http.httpPost(Constant.URL, JSON.stringify({
-            commid: Constant.httpRegister,
-            data: [user, pass]
+            id: Constant.httpRegister,
+            uid: user,
+            sid: pass
         }));
-        if (res.res == 200) {
-            
+
+        if (res.res == null) {
+
+        }
+        else if (res.res == 1) {
+            const node = cc.instantiate(this.signinPrefab);
+            this.node.parent.addChild(node);
+            this.destroy();
         }
         else {
 

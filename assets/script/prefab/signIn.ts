@@ -10,9 +10,6 @@ export class signIn extends cc.Component {
     @property(cc.EditBox)
     passEdit: cc.EditBox = null;
 
-    @property(cc.EditBox)
-    rePassEdit: cc.EditBox = null;
-
     @property(cc.Button)
     confirmBtn: cc.Button = null;
 
@@ -29,25 +26,29 @@ export class signIn extends cc.Component {
         if (this.clickstate) {
             return;
         }
-        cc.director.loadScene("Home");
-        return;
 
         this.clickstate = true;
         var user = Number(this.userEdit.string);
-        var pass = Number(this.userEdit.string);
+        var pass = Number(this.passEdit.string);
         var res = await Http.httpPost(Constant.URL, JSON.stringify({
-            commid: Constant.httpSignIn,
-            data: [user, pass]
+            id: Constant.httpSignIn,
+            uid: user,
+            sid: pass
         }));
-        if (res.res == 200) {
+        console.log(res);
+
+        if (res == null) {
+
+        }
+        else if (res.res == 1) {
             Constant.uid = user;
-            Constant.gold = res.data.gold;
-            
+            Constant.gold = res.gold;
+            cc.director.loadScene("Home");
         }
         else {
 
         }
-        this.clickstate = true;
+        this.clickstate = false;
     }
 
     onClickCancel() {

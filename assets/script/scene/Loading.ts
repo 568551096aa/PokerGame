@@ -28,10 +28,6 @@ export class Loading extends cc.Component {
                 "static COMMAND_OPESELECTBOSS = 1;自动不叫static COMMAND_OPERPLAYCARD = 2;自动出牌static COMMAND_OPERCONNCARD = 3;自动接static COMMAND_RECONN = 4;重新连static COMMAND_GMAEEND = 5;游戏结static COMMAND_MAIN = 6;游戏控制 static COMMAND_SETBOSS = 7;游戏控制        static COMMAND_SELECTBOSS = 8;主动叫地主操        static COMMAND_PLAYCARD = 9;主动出牌操作        static COMMAND_CONNCARD = 10;主动接牌操作       static COMMAND_LEAVEROOM = 11;离开房间"
         }));*/
         //console.log(res);
-
-
-
-        
         this.showMenu();
         /*setTimeout(() => {
             setTimeout(() => {
