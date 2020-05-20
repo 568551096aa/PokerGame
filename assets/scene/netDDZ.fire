@@ -2785,6 +2785,9 @@
     "timerPrefab": {
       "__uuid__": "c42635fb-ffda-4aa7-8772-1a4eb2b1695b"
     },
+    "winPrefab": {
+      "__uuid__": "43cd8f8c-9811-40e9-b024-d076ce6e4460"
+    },
     "textLabel": [
       {
         "__id__": 24
@@ -2811,7 +2814,24 @@
       "__id__": 47
     },
     "goldLabel": {
-      "__id__": 41
+      "__id__": 42
+    },
+    "playerAve": [
+      {
+        "__id__": 38
+      },
+      {
+        "__id__": 53
+      },
+      {
+        "__id__": 50
+      }
+    ],
+    "boosSpriteframe": {
+      "__uuid__": "65664157-bfcf-4720-b472-dc3750a659c9"
+    },
+    "frameSpriteframe": {
+      "__uuid__": "92671126-ce40-419c-832a-22ee1de5b803"
     },
     "_id": "99d48K5qhLzZaJaw+EwdBC"
   }

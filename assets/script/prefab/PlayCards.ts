@@ -44,7 +44,13 @@ export class PlayCards extends cc.Component {
             this.game.room.playCardCalbak(this.game.myself, false);
         }
         else {
-            this.game.playCardComm();
+            if (this.game.state == Constant.playCard) {
+                this.game.playCardComm();
+            }
+            else {
+                this.game.connCardComm();
+            }
+
         }
 
         this.clickstate = false;
@@ -69,7 +75,12 @@ export class PlayCards extends cc.Component {
             this.game.room.playCardCalbak(this.game.myself, true);
         }
         else {
-            this.game.playCardComm();
+            if (this.game.state == Constant.playCard) {
+                this.game.playCardComm();
+            }
+            else {
+                this.game.connCardComm();
+            }
         }
         this.clickstate = false;
     }

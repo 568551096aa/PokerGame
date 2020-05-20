@@ -40,8 +40,6 @@ export class Loading extends cc.Component {
             }, 10);
         }, 10)*/
 
-
-
     }
 
     showMenu() {
@@ -50,4 +48,5 @@ export class Loading extends cc.Component {
         const node = cc.instantiate(this.gameModePrefab);
         this.menuNode.addChild(node);
     }
+
 }

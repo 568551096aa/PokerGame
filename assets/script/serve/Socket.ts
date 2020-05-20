@@ -82,7 +82,6 @@ export class Socket {
             this.binded = true;
             //bind成功后检测是否需要恢复团战和加入团战邀请
             this.heartBeatHandler = setInterval(() => {
-                console.log("开始发送心跳");
                 this.sendMessage(Constant.COMMAND_HEART_BEAT, "");
             }, 3000);
         }
@@ -105,7 +104,7 @@ export class Socket {
             header: {
                 command_id: commandId,
                 packet_id: ++this.packetId,
-                uid: 0,
+                uid:  Constant.uid
             },
             body: JSON.stringify(body),
         };
@@ -118,7 +117,7 @@ export class Socket {
     }
 
     private handleMessage(res: any) {
-        console.warn("res " + res.data);
+
         const packet = JSON.parse(res.data);
         const header = packet.header;
         const commandId = header.command_id;
@@ -128,19 +127,21 @@ export class Socket {
         if (promise) {
             //处理客户端主动请求的消息
             if (header.err_code && header.err_code != 0) {
-                if (header.command_id != "heartbeat") {
+                if (header.command_id != Constant.COMMAND_HEART_BEAT) {
                     console.warn(`websocket 收到${commandId}回复, errCode: ${header.err_code}, errMsg: ${header.err_msg}`);
                 }
                 promise.resolve(header);
             } else {
-                if (header.command_id != "heartbeat") {
+                if (header.command_id != Constant.COMMAND_HEART_BEAT) {
                     console.warn(`websocket 收到${commandId}回复, body:`, body);
                 }
                 promise.resolve(body);
             }
         } else {
             //处理服务器主动推送的消息
-            console.warn(`websocket 收到服务器消息${commandId}, body:`, body);
+            if (commandId != Constant.COMMAND_HEART_BEAT) {
+                console.warn(`websocket 收到服务器消息${commandId}, body:`, body);
+            }
             this.dispatch(header, body);
         }
     }
@@ -156,25 +157,34 @@ export class Socket {
                 Constant.id = body.id;
                 break;
             case Constant.COMMAND_STARTGAME:
-                cc.director.emit(Constant.COMMAND_STARTGAME.toString(),);
+                cc.director.emit(Constant.COMMAND_STARTGAME.toString(), body);
                 break;
             case Constant.COMMAND_OPESELECTBOSS:
-                cc.director.emit(Constant.COMMAND_OPESELECTBOSS.toString(), body.group_info);
+                cc.director.emit(Constant.COMMAND_OPESELECTBOSS.toString(), body);
                 break;
             case Constant.COMMAND_OPERPLAYCARD:
-                cc.director.emit(Constant.COMMAND_OPERPLAYCARD.toString(), body.group_info);
+                cc.director.emit(Constant.COMMAND_OPERPLAYCARD.toString(), body);
                 break;
             case Constant.COMMAND_OPERCONNCARD:
-                cc.director.emit(Constant.COMMAND_OPERCONNCARD.toString(), body.group_info);
+                cc.director.emit(Constant.COMMAND_OPERCONNCARD.toString(), body);
                 break;
             case Constant.COMMAND_RECONN:
-                cc.director.emit(Constant.COMMAND_RECONN.toString(), body.group_info);
+                cc.director.emit(Constant.COMMAND_RECONN.toString(), body);
                 break;
             case Constant.COMMAND_GMAEEND:
-                cc.director.emit(Constant.COMMAND_GMAEEND.toString(), body.group_info);
+                cc.director.emit(Constant.COMMAND_GMAEEND.toString(), body);
                 break;
             case Constant.COMMAND_SETBOSS:
-                cc.director.emit(Constant.COMMAND_SETBOSS.toString(), body.group_info);
+                cc.director.emit(Constant.COMMAND_SETBOSS.toString(), body);
+                break;
+            case Constant.COMMAND_SELECTBOSS:
+                cc.director.emit(Constant.COMMAND_SELECTBOSS.toString(), body);
+                break;
+            case Constant.COMMAND_PLAYCARD:
+                cc.director.emit(Constant.COMMAND_PLAYCARD.toString(), body);
+                break;
+            case Constant.COMMAND_CONNCARD:
+                cc.director.emit(Constant.COMMAND_CONNCARD.toString(), body);
                 break;
         }
     }
@@ -201,7 +211,7 @@ export class Socket {
 
     playCard(id: number, pokers: number[]) {
         console.log("send2");
-        this.sendMessage(Constant.COMMAND_SELECTBOSS, { id: id, pokers: pokers });
+        this.sendMessage(Constant.COMMAND_PLAYCARD, { id: id, pokers: pokers });
     }
 
     connCard(id: number, pokers: number[]) {

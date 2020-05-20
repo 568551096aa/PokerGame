@@ -51,11 +51,17 @@ export class Player {
 
     compareAsc(numA: number, numB: number) {
         var A = numA, B = numB;
-        if (A == 0 || A == 1) {
+        if (A == 1) {
             A += 54;
         }
-        if (B == 0 || B == 1) {
+        else if (A == 0) {
+            A += 56;
+        }
+        if (B == 1) {
             B += 54;
+        }
+        else if (B == 0) {
+            B += 56;
         }
         if (A < B) {
             return -1;

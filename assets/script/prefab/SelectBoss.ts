@@ -20,7 +20,7 @@ export class SelectBoss extends cc.Component {
     giveupBoss: cc.SpriteFrame = null;
 
 
-    
+
 
     private clickstate: boolean = false;
     game: any = null;

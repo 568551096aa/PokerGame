@@ -41,18 +41,18 @@ export class Constant {
     static COMMAND_HEART_BEAT = 0;//心跳包
     static COMMAND_STARTGAME = 1;//开始游戏
 
-    static COMMAND_OPESELECTBOSS = 3;//自动不叫
-    static COMMAND_OPERPLAYCARD = 4;//自动出牌
-    static COMMAND_OPERCONNCARD = 5;//自动接牌
+    static COMMAND_OPESELECTBOSS = 2;//叫地主
+    static COMMAND_OPERPLAYCARD = 3;//出牌
+    static COMMAND_OPERCONNCARD = 4;//接牌
     static COMMAND_RECONN = 6;//重新连接
     static COMMAND_GMAEEND = 7;//游戏结束
     static COMMAND_MAIN = 8;//游戏控制
     static COMMAND_SETBOSS = 9;//游戏控制
 
 
-    static COMMAND_SELECTBOSS = 10;//主动叫地主操作
-    static COMMAND_PLAYCARD = 11;//主动出牌操作
-    static COMMAND_CONNCARD = 12;//主动接牌操作
+    static COMMAND_SELECTBOSS = 10;//叫地主阶段
+    static COMMAND_PLAYCARD = 11;//出牌阶段
+    static COMMAND_CONNCARD = 12;//主动阶段
 
     static COMMAND_LEAVEROOM = 13;//离开房间
     static COMMAND_READY = 14;//准备

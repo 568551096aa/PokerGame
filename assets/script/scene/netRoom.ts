@@ -5,6 +5,7 @@ import { PlayCards } from "../prefab/PlayCards";
 import { Timer } from "../prefab/Timer";
 import { Player } from "../Player";
 import { socket } from "../serve/Socket"
+import { win } from "../prefab/win";
 
 const { ccclass, property } = cc._decorator;
 
@@ -38,6 +39,9 @@ export class Room extends cc.Component {
     @property(cc.Prefab)
     timerPrefab: cc.Prefab = null;
 
+    @property(cc.Prefab)
+    winPrefab: cc.Prefab = null;
+
     @property(cc.Label)
     textLabel: cc.Label[] = [];
 
@@ -50,12 +54,24 @@ export class Room extends cc.Component {
     @property(cc.Label)
     goldLabel: cc.Label = null;
 
+    @property(cc.Sprite)
+    playerAve: cc.Sprite[] = [];
+
+    @property(cc.SpriteFrame)
+    boosSpriteframe: cc.SpriteFrame = null;
+
+    @property(cc.SpriteFrame)
+    frameSpriteframe: cc.SpriteFrame = null;
+
+
     private playCardNode: cc.Node = null;
     private selectBossNode: cc.Node = null;
     private timerNode: cc.Node = null;
+    private winNode: cc.Node = null;
 
     allPoker: cc.Node[] = new Array();
-    game: any = null;//逻辑控制
+    mypokerPos: number[] = null;
+
     isauto: boolean = false;//是否托管
     timerCalBak: any;//倒计时回调函数
     private clickstate = Constant.ClickNothing;
@@ -96,6 +112,10 @@ export class Room extends cc.Component {
             this.alerNode.addChild(this.playCardNode);
             this.selectBossNode = cc.instantiate(this.selectBossPrefab);
             this.alerNode.addChild(this.selectBossNode);
+
+            this.winNode = cc.instantiate(this.winPrefab);
+            this.alerNode.addChild(this.winNode);
+
 
             this.timerNode = cc.instantiate(this.timerPrefab);
             this.alerNode.addChild(this.timerNode);
@@ -154,6 +174,9 @@ export class Room extends cc.Component {
         this.readyBtn.active = true;
         this.loding.node.active = false;
 
+        this.playCardNode.position = new cc.Vec2(0, 0);
+        this.winNode.active = false;
+
         this.playCardNode.position = new cc.Vec2(0, -80);
         this.playCardNode.active = false;
 
@@ -173,6 +196,7 @@ export class Room extends cc.Component {
             this.players[i] = new Player();
         }
         this.goldLabel.string = Constant.gold.toString();
+
     }
 
     initZzh() {
@@ -206,14 +230,57 @@ export class Room extends cc.Component {
         else if (Constant.isZzh()) {
 
         }
+        for (var i = 0; i < 3; i++) {
+            this.playerAve[i].spriteFrame = this.frameSpriteframe;
+        }
         this.goldLabel.string = Constant.gold.toString();
+        this.clickstate = Constant.ClickNothing;
     }
 
     startGame(data) {
+        this.myself = Constant.id;
+        console.log("myself", this.myself);
         //数据同步
         this.loding.node.active = false;
         this.players[this.myself].pokers = data.pokers;
         this.firstPlayerId = data.firstPlayerId;
+
+        console.log(this.players[this.myself].pokers);
+        var pokerBite = new Array(54);
+        var i = 0;
+        for (i = 0; i < data.pokers.length; i++) {
+            pokerBite[data.pokers[i]] = true;
+        }
+
+        this.players[(this.myself + 1) % 3].pokers = new Array(17);
+        this.players[(this.myself + 2) % 3].pokers = new Array(17);
+        var j = 0, k = (this.myself + 1) % 3;
+        for (i = 0; i < 54; i++) {
+            if (j == 17) {
+                j = 0;
+                k = (k + 1) % 3;
+            }
+            if (pokerBite[i]) {
+                continue;
+            }
+            if (k == this.myself) {
+                if (pokerBite[i]) {
+                    continue;
+                }
+                this.host[j] = i;
+                j++;
+                continue;
+            }
+            this.players[k].pokers[j] = i;
+            j++;
+        }
+
+        this.players[0].init(this.players[0].pokers);
+        this.players[1].init(this.players[1].pokers);
+        this.players[2].init(this.players[2].pokers);
+        this.mypokerPos = new Array(17);
+        this.mypokerPos = data.pokers;
+
         //发牌开始
         this.dealCardsA();
     }
@@ -391,7 +458,6 @@ export class Room extends cc.Component {
                     }
                 }
                 var type = this.getPokerTypeAndLevel(nums);
-                console.log(type);
                 if (type[0] == -1) {
                     this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = false;
                 }
@@ -402,7 +468,6 @@ export class Room extends cc.Component {
                     }
                     else if (this.state == Constant.connCard) {
                         this.touchPokerType = type;
-                        console.log("需要出牌的类型 " + this.lastTypeAndSize);
                         if (this.compTypeAndSize(this.lastTypeAndSize, type)) {
                             this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = true;
                         }
@@ -467,64 +532,42 @@ export class Room extends cc.Component {
 
         const callbackD = cc.callFunc((target) => {
             this.pokerNum[1].node.active = true;
-            this.pokerNum[1].node.setPosition(350, 0);
+            this.pokerNum[1].node.setPosition(350, -100);
             this.pokerNum[1].string = "17";
             this.pokerNum[2].node.active = true;
-            this.pokerNum[2].node.setPosition(-350, 0);
+            this.pokerNum[2].node.setPosition(-350, -100);
             this.pokerNum[2].string = "17";
             this.dealEnd = true;
         }, this);
         this.midPoker.runAction(cc.sequence(callbackA, cc.delayTime(0.3), callbackB, cc.delayTime(1.0), callbackC, cc.delayTime(0.5), callbackD));
     }
 
-    main(type: number, id: number) {
-        switch (type) {
-            case Constant.selectBoss:
-                this.selectBoss(id);
-                break;
-            case Constant.playCard:
-                this.playCard(id);
-                break;
-            case Constant.connCard:
-                this.connCard(id);
-                break;
-            default:
-                this.onClickQuit();
-                break;
-        }
-    }
-
     //叫地主
-    selectBoss(id: number) {
-        if (!this.dealEnd) {
-            setTimeout(this.selectBoss, 3000, id);
-            return;
-        }
+    selectBoss(data) {
+        var id = data.id;
+        this.bossId = data.bossId;
+        console.log("select", id, this.myself);
         this.state = Constant.selectBoss;
-
         if (id == this.myself) {
             //出牌显示 设置20s的定时器 如果手动选择则调main 否则在定时器的回调里main  如果首位玩家已经叫了地主后又到了这位玩家
             //继续抢地主则为最终地主 否则最先抢地主的玩家是地主
-            var midPos = [this.pokerLeft, -220 + 180];
+            console.log("beg");
+            var midPos = [-180, -220 + 150];
             this.timerNode.getComponent(Timer).timerStart(midPos);
             this.selectBossNode.active = true;
-            this.selectBossNode.getComponent(SelectBoss).init(this.game);
-            //const callback = cc.callFunc(this.afterSelectBoss, this, id);
-            //this.timerCalBak[id] = this.alerNode.runAction(cc.sequence(cc.delayTime(20), callback));
+            this.selectBossNode.getComponent(SelectBoss).init(this);
+
         }
         else if (id == (this.myself + 1) % 3) {
-            var rightPos = [250, 200];
+            var rightPos = [250, 150];
             this.timerNode.getComponent(Timer).timerStart(rightPos);
-            //const callback = cc.callFunc(this.afterSelectBoss, this, id);
-            //this.timerCalBak[id] = this.alerNode.runAction(cc.sequence(cc.delayTime(20), callback));
+
         }
         else {
-            var leftPos = [-250, 200];
+            var leftPos = [-250, 150];
             this.timerNode.getComponent(Timer).timerStart(leftPos);
-            //const callback = cc.callFunc(this.afterSelectBoss, this, id);
-            //this.timerCalBak[id] = this.alerNode.runAction(cc.sequence(cc.delayTime(20), callback));
-        }
 
+        }
     }
 
     //主动地主操作
@@ -533,17 +576,19 @@ export class Room extends cc.Component {
     }
 
     //自动地主
-    selectBossCalbak(id: number, isBoss: boolean) {
+    selectBossCalbak(data) {
+        var id = data.id;
+        var isBoss = data.isBoss;
+        var textType = data.textType;
         if (id == this.myself) {
-            this.roundAnim(id, this.players[id].textType)
+            this.roundAnim(id, textType)
         }
         else if (id == (this.myself + 1) % 3) {
-            this.roundAnim(id, this.players[id].textType)
+            this.roundAnim(id, textType)
         }
         else {
-            this.roundAnim(id, this.players[id].textType)
+            this.roundAnim(id, textType)
         }
-        socket.selectBoss(id, isBoss);
         this.timerNode.getComponent(Timer).timerStop();
     }
 
@@ -561,45 +606,58 @@ export class Room extends cc.Component {
     }
 
     //出牌
-    playCard(id: number) {
+    playCard(data) {
+        var id = data.id;
         console.log("出牌");
         this.beforplayCard(id);
 
         if (id == this.myself) {
             this.clickIsSelect = true;
-            var midPos = [this.pokerLeft, -220 + 180];
+            var midPos = [-180, -220 + 150];
             this.timerNode.getComponent(Timer).timerStart(midPos);
             this.playCardNode.active = true;
-            this.playCardNode.getComponent(PlayCards).init(this.game);
-            //const callback = cc.callFunc(this.afterPlayCard, this, id);
-            //this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
+            this.playCardNode.getComponent(PlayCards).init(this);
+
         }
         else if (id == (this.myself + 1) % 3) {
-            var rightPos = [250, 200];
+            var rightPos = [250, 150];
             this.timerNode.getComponent(Timer).timerStart(rightPos);
-            this.players[id].validPokerNum -= this.players[id].lastPokers.length;
 
-            //const callback = cc.callFunc(this.afterPlayCard, this, id);
-            //this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
         }
         else {
-            var leftPos = [-250, 200];
+            var leftPos = [-250, 150];
             this.timerNode.getComponent(Timer).timerStart(leftPos);
-            this.players[id].validPokerNum -= this.players[id].lastPokers.length;
 
-            //const callback = cc.callFunc(this.afterPlayCard, this, id);
-            //this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
         }
     }
 
 
     //主动出牌操作
     playCardComm() {
-        socket.playCard(this.myself, this.players[this.myself].lastPokers);
+        var nums = new Array();
+        var i = 0;
+        for (i = 0; i < this.players[this.myself].pokers.length; i++) {
+            if (this.players[this.myself].playedPokers[i]) {
+                continue;
+            }
+            if (this.isSelect[i]) {
+                this.players[this.myself].playedPokers[i] = true;
+                nums.push(this.players[this.myself].pokers[i]);
+            }
+        }
+        socket.playCard(this.myself, nums);
     }
 
     //自动出牌
-    playCardCalbak(id: number, isPlay: boolean) {
+    playCardCalbak(data) {
+        var id = data.id;
+        var isPlay = data.isPlay;
+        var num = data.pokers;
+        if (data.pokers == null) {
+            num = new Array();
+        }
+        this.players[id].lastPokers = num;
+        this.players[id].validPokerNum -= num.length;
         if (isPlay) {
             this.play(id);
         }
@@ -623,16 +681,17 @@ export class Room extends cc.Component {
             this.initPoker();
         }
         else if (id == (this.myself + 1) % 3) {
-            this.pokerNum[1].string = this.players[1].validPokerNum.toString();
+            this.pokerNum[1].string = this.players[id].validPokerNum.toString();
         }
         else {
-            this.pokerNum[1].string = this.players[1].validPokerNum.toString();
+            this.pokerNum[2].string = this.players[id].validPokerNum.toString();
         }
 
     }
 
     //接牌
-    connCard(id: number) {
+    connCard(data) {
+        var id = data.id;
         if (this.players[id].lastPokers != null) {
             for (var i = 0; i < this.players[id].lastPokers.length; i++) {
                 this.allPoker[this.players[id].lastPokers[i]].active = false;
@@ -643,42 +702,65 @@ export class Room extends cc.Component {
         console.log("接牌 " + id);
         if (id == this.myself) {
             this.clickIsSelect = true;
-            var midPos = [this.pokerLeft, -220 + 180];
+            var midPos = [-180, -220 + 150];
             this.timerNode.getComponent(Timer).timerStart(midPos);
             this.playCardNode.active = true;
-            this.playCardNode.getComponent(PlayCards).init(this.game);
-            //const callback = cc.callFunc(this.afterPlayCard, this, id);
-            //this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
+            this.playCardNode.getComponent(PlayCards).init(this);
+
         }
         else if (id == (this.myself + 1) % 3) {
-            var rightPos = [250, 200];
+            var rightPos = [250, 150];
             this.timerNode.getComponent(Timer).timerStart(rightPos);
 
-            //const callback = cc.callFunc(this.afterPlayCard, this, id);
-            //this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
         }
         else {
-            var leftPos = [-250, 200];
+            var leftPos = [-250, 150];
             this.timerNode.getComponent(Timer).timerStart(leftPos);
 
-            //const callback = cc.callFunc(this.afterPlayCard, this, id);
-            //this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
         }
     }
 
     //主动接牌操作
     connCardComm() {
+        var nums = new Array();
+        var i = 0;
+        for (i = 0; i < this.players[this.myself].pokers.length; i++) {
+            if (this.players[this.myself].playedPokers[i]) {
+                continue;
+            }
+            if (this.isSelect[i]) {
+                this.players[this.myself].playedPokers[i] = true;
+                nums.push(this.players[this.myself].pokers[i]);
+            }
+        }
         socket.connCard(this.myself, this.players[this.myself].lastPokers);
     }
 
 
 
-    setBoss(id: number, host: number[]) {
+    setBoss(data) {
+        console.log(data.host);
+        var id = data.id;
+        var host = data.host;
+
+        this.players[id].setBoss(host);
+        this.players[id].sortPokers();
+
+
+        this.mypokerPos.sort(this.players[0].compareAsc);
+        this.host.sort(this.players[0].compareAsc);
+        host.sort(this.players[0].compareAsc);
+
+        for (var k = 0; k < 3; k++) {
+            var temp = this.allPoker[host[k]].position;
+            this.allPoker[host[k]].setPosition(this.allPoker[this.host[k]].position);
+            this.allPoker[this.host[k]].setPosition(temp);
+        }
         this.host = host;
         //翻开地主牌
         const callbackA = cc.callFunc(() => {
             for (var i = 0; i < this.host.length; i++) {
-                this.allPoker[this.host[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[this.host[i]];
+                this.allPoker[this.host[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[host[i]];
             }
         }, this);
         var callbackB;
@@ -687,13 +769,13 @@ export class Room extends cc.Component {
 
             //移动手牌到指定位置 把地主拍放入手中
             callbackB = cc.callFunc(() => {
+                this.playerAve[0].spriteFrame = this.boosSpriteframe;
                 var midPos = [this.pokerLeft + Constant.PokerWidth / 2, -220];
                 var pos: number[] = new Array(6);
-                this.host.sort(this.players[0].compareAsc);
                 var j = 0;
                 for (var i = 0; i < this.players[id].pokers.length; i++) {
                     this.allPoker[this.players[id].pokers[i]].zIndex = i;
-                    if (this.players[id].pokers[i] == this.host[j]) {
+                    if (this.players[id].pokers[i] == host[j]) {
                         pos[j * 2] = midPos[0];
                         pos[j * 2 + 1] = midPos[1];
                         j++;
@@ -710,18 +792,21 @@ export class Room extends cc.Component {
         }
         else if (id == (this.myself + 1) % 3) {
             callbackB = cc.callFunc(() => {
+                this.playerAve[1].spriteFrame = this.boosSpriteframe;
                 var rightPos = [350, 0];
-                this.pokerNum[1].string = this.players[1].validPokerNum.toString();
+                this.pokerNum[1].string = this.players[id].validPokerNum.toString();
                 for (var i = 0; i < this.host.length; i++) {
                     this.allPoker[this.host[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[54];
                     this.allPoker[this.host[i]].runAction(cc.moveTo(0.2, rightPos[0], rightPos[1]));
                 }
+
             }, this);
         }
         else {
             callbackB = cc.callFunc(() => {
+                this.playerAve[2].spriteFrame = this.boosSpriteframe;
                 var leftPos = [-350, 0];
-                this.pokerNum[2].string = this.players[2].validPokerNum.toString();
+                this.pokerNum[2].string = this.players[id].validPokerNum.toString();
                 for (var i = 0; i < this.host.length; i++) {
                     this.allPoker[this.host[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[54];
                     this.allPoker[this.host[i]].runAction(cc.moveTo(0.2, leftPos[0], leftPos[1]));
@@ -729,6 +814,8 @@ export class Room extends cc.Component {
             }, this);
         }
         const callbackC = cc.callFunc((target) => {
+
+            this.isSelect = new Array(this.players[this.myself].pokers.length);
             for (var i = 0; i < 3; i++) {
                 this.roundAnim(i, -1);
             }
@@ -740,6 +827,16 @@ export class Room extends cc.Component {
 
     //0不出 1叫地主 2抢地主 
     roundAnim(id: number, type: number) {
+        var showId = 0;
+        if (id == this.myself) {
+            showId = 0;
+        }
+        else if (id == (this.myself + 1) % 3) {
+            showId = 1;
+        }
+        else {
+            showId = 2;
+        }
         if (type == -1) {
             this.textLabel[id].node.active = false;
             return;
@@ -759,14 +856,14 @@ export class Room extends cc.Component {
                 text = "不出";
                 break;
         }
-        this.textLabel[id].node.active = true;
-        this.textLabel[id].string = text;
+        this.textLabel[showId].node.active = true;
+        this.textLabel[showId].string = text;
     }
 
     play(id: number) {
-        var leftPos = [-250 + 135, 0];
+        var leftPos = [-250 + 135, 100];
         var midPos = [this.pokerLeft + Constant.PokerWidth / 2, -220 + 180];
-        var rightPos = [250 - 135, 0];
+        var rightPos = [250 - 135, 100];
         if (id == this.myself) {
             var i = 0;
             var left = -1 * Math.floor((this.players[this.myself].lastPokers.length * Constant.PokerWidth / 5 + Constant.PokerWidth * 0.8) / 2);
@@ -775,30 +872,40 @@ export class Room extends cc.Component {
                 this.allPoker[this.players[this.myself].lastPokers[i]].setPosition(midPos[0], midPos[1]);
                 midPos[0] += Constant.PokerWidth / 5;
             }
-            this.lastTypeAndSize = this.touchPokerType;
         }
         else if (id == (this.myself + 1) % 3) {
-            var top = Math.floor((this.players[id].lastPokers.length * Constant.PokerHeight / 4 + Constant.PokerHeight * 0.75) / 2);//初始化手牌边界
-            rightPos[1] = top + Constant.PokerWidth / 2;
+            var left = Math.floor((this.players[id].lastPokers.length * Constant.PokerHeight / 5 + Constant.PokerHeight * 0.80) / 2);//初始化手牌边界
+            rightPos[0] = left + Constant.PokerWidth / 2;
             for (i = 0; i < this.players[id].lastPokers.length; i++) {
                 this.allPoker[this.players[id].lastPokers[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[this.players[id].lastPokers[i]];
+                this.allPoker[this.players[id].lastPokers[i]].zIndex = this.players[id].lastPokers.length - i;
                 this.allPoker[this.players[id].lastPokers[i]].setPosition(rightPos[0], rightPos[1]);
-                rightPos[1] -= Constant.PokerHeight / 4;
+                rightPos[0] -= Constant.PokerHeight / 5;
             }
         }
         else {
-            var top = Math.floor((this.players[id].lastPokers.length * Constant.PokerHeight / 4 + Constant.PokerHeight * 0.75) / 2);//初始化手牌边界
-            rightPos[1] = top + Constant.PokerWidth / 2;
+            var left = Math.floor((this.players[id].lastPokers.length * Constant.PokerHeight / 5 + Constant.PokerHeight * 0.80) / 2);//初始化手牌边界
+            leftPos[0] = -1 * (left + Constant.PokerWidth / 2);
             for (i = 0; i < this.players[id].lastPokers.length; i++) {
                 this.allPoker[this.players[id].lastPokers[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[this.players[id].lastPokers[i]];
+                this.allPoker[this.players[id].lastPokers[i]].zIndex = this.players[id].lastPokers.length - i;
                 this.allPoker[this.players[id].lastPokers[i]].setPosition(leftPos[0], leftPos[1]);
-                rightPos[1] -= Constant.PokerHeight / 4;
+                leftPos[0] += Constant.PokerHeight / 5;
             }
         }
     }
 
-    GAMEOVER() {
-
+    GAMEOVER(data) {
+        var winer = data.winer;
+        var gold = data.gold;
+        Constant.gold = gold;
+        var type = 1;
+        if (this.bossId == winer) {
+            type = 0;
+        }
+        this.winNode.getComponent(win).init(this, type);
+        this.winNode.active = true;
+        this.clickstate = Constant.ClickStart;
     }
 
     initPoker() {

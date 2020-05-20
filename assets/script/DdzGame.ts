@@ -36,13 +36,15 @@ export class DdzGame {
         for (i = 0; i < this.bossState.length; i++) {
             this.bossState[i] = false;
         }
+        for (var i = 0; i < this.players.length; i++) {
+            this.players[i] = new Player();
+        }
         this.lastTypeAndSize = [-1, -1];
         this.state = Constant.ready;
         this.pointer = 0;
         this.bossId = -1;
         this.myself = 0;
         this.winerId = -1;
-
     }
 
     startGame() {
@@ -77,7 +79,11 @@ export class DdzGame {
         this.state = Constant.playCard;
         this.players[id].setBoss(this.host);
         this.players[id].sortPokers();
+        for (var i = 0; i < 3; i++) {
+            this.players[i].sortPokers();
+        }
         this.room.setBoss(id);
+
     }
 
     //洗牌 
@@ -142,6 +148,12 @@ export class DdzGame {
 
     }
 
+    //王炸： 0 顺子：1 个数 第一张牌大小   4张炸弹：2 个数 第一张牌大小 
+    //四张带一张： 3 个数 第一张牌大小 四张带两张： 4 个数 第一张牌大小
+    //3张：5 个数 第一张大小 三张带一张：6 个数 第一张大小 三张带两张：7 个数 第一张大小
+    //2张：8 个数 第一张大小
+    //1张：9 个数 大小
+
     //A已经出的牌 B要的牌
     compTypeAndSize(typeA: number[], typeB: number[]) {
         //4 炸弹  8四带2  0双王  32四带两对  
@@ -149,41 +161,21 @@ export class DdzGame {
         if (typeB[0] == 0) {
             res = true;
         }
-        else if (typeB[0] == 4) {
-            if (typeA[0] == 4 && typeA[1] > typeB[1]) {
-                res = true;
-            }
-        }
-        else if (typeB[0] == 8) {
-            if (typeA[0] == 8 && typeA[1] > typeB[1]) {
-                res = true;
-            }
-        }
-        else if (typeB[0] == 32) {
-            if (typeA[0] == 32 && typeA[1] > typeB[1]) {
-                res = true;
-            }
-        }
-        else if (typeA[0] == typeB[0] && typeA[1] < typeB[1]) {
+        if (typeA[0] == typeB[0] && typeA[1] == typeB[1] && typeA[2] < typeB[2]) {
             res = true;
         }
+
         console.log("是否可以要 " + res);
         return res;
     }
 
-    //获得牌的类型和大小
     getPokerTypeAndLevel(pokers: number[]) {
-        //0双王 1单 2单对子  3单三个 4单四个 5三个带一个 6三个带两个 7 5个顺子 8 四个带两个
-        //9 六个顺子  10两个三张 11  三连对子 12 7张顺子 13八张顺子 14 两带飞机带一张 15四连对子
-        //16 九个顺子 17 三个三张 18十张顺子 19两个三带两张 20 五个连对 21 十一个顺子 22 12个顺子
-        //23 三个三代一张 24 六个连对 25七个连对 26三个三代两张 27五个三张 28四个三代一张 29 八个 两连对子
-        //30 六个三张 31八个两连对子 32四个带两个对子
-        var res = [-1, -1];
+        var res = [-1, -1, -1];
         if (pokers.length == 0) {
             console.warn("错误");
             return res;
         }
-        var map = new Map<number,number>();
+        var map = new Map<number, number>();
         for (var i = 0; i < pokers.length; i++) {
             var num = 0;
             if (pokers[i] == 0) {
@@ -203,440 +195,230 @@ export class DdzGame {
                 map.set(num, 1);
             }
         }
+
+        //三张带一张  四张带一张
+
+        //王炸： 0 顺子：1 长度 第一张牌大小   4张炸弹： 2 第一张牌大小 
+        //四张带一张： 3 个数 第一张牌大小 四张带两张： 4 个数 第一张牌大小
+        //3张：5 个数 第一张大小 三张带一张：6 个数 第一张大小 三张带两张：7 个数 第一张大小
+        //2张：8 个数 第一张大小
+        //1张：9 大小
+        //单张
         if (pokers.length == 1) {
-            res[0] = 1;
-            pokers[0] < 2 ? res[1] = pokers[0] + 13 : res[1] = Math.floor((pokers[0] - 2) / 4);;
-        }
-        else if (pokers.length == 2) {
-            if (map.size == 1) {
-                res[0] = 2;
-                res[1] = Math.floor((pokers[0] - 2) / 4);
+            res[0] = 9;
+            res[1] = 1;
+            if (pokers[0] == 0) {
+                res[2] = 100;
+            }
+            else if (pokers[0] == 1) {
+                res[2] = 99;
             }
             else {
-                if (pokers[0] == 0 && pokers[1] == 1) {
-                    res[0] = 0;
+                res[2] = Math.floor((pokers[0] - 2) / 4);
+            }
+            return res;
+        }
+        //王炸
+        if (pokers.length == 2) {
+            if (pokers[0] == 0 && pokers[1] == 1) {
+                res[0] = 0;
+                return res;
+            }
+        }
+        var first = null;
+        //所有单张
+        var aNum = 0;
+        map.forEach((value, key) => {
+            if (value == 1) {
+                aNum++;
+            }
+        });
+        //所有对子
+        var bNum = 0;
+        first = new Array();
+        map.forEach((value, key) => {
+            if (value == 2) {
+                bNum++;
+                first.push(key);;
+            }
+        });
+        if (bNum * 2 == pokers.length) {
+            if (first.length == 1) {
+                res[0] = 8;
+                res[1] = bNum;
+                res[2] = first[0];
+            }
+            else if (first.length == 2) {
+                res[0] = -1;
+                return res;
+            }
+            else {
+                if (first[first.length - 1] == 11) {
+                    res[0] = -1;
+                    return res;
                 }
+                res[0] = 8;
+                res[1] = bNum;
+                res[2] = first[0];
             }
         }
-        else if (pokers.length == 3) {
-            if (map.size == 1) {
-                res[0] = 3;
-                res[1] = Math.floor((pokers[0] - 2) / 4);
+
+        //所有三张
+        var cNum = 0;
+        first = new Array();
+        map.forEach((value, key) => {
+            if (value == 3) {
+                cNum++;
+                first.push(key);;
             }
+        });
+        if (cNum * 3 == pokers.length) {
+            if (first[first.length - 1] == 11) {
+                res[0] = -1;
+                return res;
+            }
+            res[0] = 5;
+            res[1] = cNum;
+            res[2] = first[0];
         }
-        else if (pokers.length == 4) {
-            if (map.size == 1) {
-                res[0] = 4;
-                res[1] = Math.floor((pokers[0] - 2) / 4);
-            }
-            else if (map.size == 2) {
-                map.forEach((value, key) => {
-                    if (value == 3) {
-                        res[0] = 5;
-                        res[1] = key;
-                        return;
+        else {
+            if (cNum == aNum && pokers.length == cNum * 3 + aNum) {
+                if (first.length == 1) {
+                    res[0] = 6;
+                    res[1] = cNum;
+                    res[2] = first[0];
+                }
+                else {
+                    if (first[first.length - 1] == 11) {
+                        res[0] = -1;
+                        return res;
                     }
-                });
-            }
-        }
-        else if (pokers.length == 5) {
-            if (map.size == 2) {
-                map.forEach((value, key) => {
-                    if (value == 3) {
+                    var i = 1;
+                    for (i = 1; i < first.length; i++) {
+                        if (first[i] != first[i - 1] + 1) {
+                            res[0] = -1;
+                            break;
+                        }
+                    }
+                    if (i == first.length) {
                         res[0] = 6;
-                        res[1] = key;
-                        return;
+                        res[1] = cNum;
+                        res[2] = first[0];
                     }
-                });
+                }
             }
-            else if (map.size == 5) {
-                var max = -1, min = 20;
-                map.forEach((value, key) => {
-                    max < key ? max = key : max;
-                    min > key ? min = key : min;
-                });
-                if (max < 12 && max - min == 4) {
+            if (cNum == bNum && pokers.length == cNum * 3 + bNum * 2) {
+                if (first.length == 1) {
                     res[0] = 7;
-                    res[1] = min;
-                }
-            }
-        }
-        else if (pokers.length == 6) {
-            if (map.size == 2) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[5] - 2) / 4)) {
-                    res[0] = 9;
-                    res[1] = 100;
-                    map.forEach((value, key) => {
-                        res[1] > key ? res[1] = key : res[1];
-                    });
-                }
-            }
-            else if (map.size == 3) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)) {
-                    var min = 100;
-                    map.forEach((value, key) => {
-                        min > key ? min = key : min;
-                    });
-                    if (max <= 9) {
-                        res[0] = 11;
-                        res[1] = min;
-                    }
+                    res[1] = cNum;
+                    res[2] = first[0];
                 }
                 else {
-                    map.forEach((value, key) => {
-                        if (value == 4) {
-                            res[0] = 8;
-                            res[1] = key;
-                            return;
-                        }
-                    });
-                }
-            }
-            else if (map.size == 6) {
-                var max = -1, min = 20;
-                map.forEach((value, key) => {
-                    max < key ? max = key : max;
-                    min > key ? min = key : min;
-                });
-                if (max < 12 && max - min == 5) {
-                    res[0] = 9;
-                    res[1] = min;
-                }
-            }
-        }
-        else if (pokers.length == 7) {
-            if (map.size == 7) {
-                var max = -1, min = 20;
-                map.forEach((value, key) => {
-                    max < key ? max = key : max;
-                    min > key ? min = key : min;
-                });
-                if (max < 12 && max - min == 6) {
-                    res[0] = 12;
-                    res[1] = min;
-                }
-            }
-        }
-        else if (pokers.length == 8) {
-            if (map.size == 4) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4)) {
-                    var min = 20;
-                    map.forEach((value, key) => {
-                        min > key ? min = key : min;
-                    });
-                    if (max < 12) {
-                        res[0] = 11;
-                        res[1] = min;
+                    if (first[first.length - 1] == 11) {
+                        res[0] = -1;
+                        return res;
                     }
+                    var i = 1;
+                    for (i = 1; i < first.length; i++) {
+                        if (first[i] != first[i - 1] + 1) {
+                            res[0] = -1;
+                            return res;
+                        }
+                    }
+                    if (i == first.length) {
+                        res[0] = 7;
+                        res[1] = cNum;
+                        res[2] = first[0];
+                    }
+                }
+            }
+        }
+
+
+        //所有四张  n连四张带一张 n连四张带两张
+        var dNum = 0;
+        first = new Array();
+        map.forEach((value, key) => {
+            if (value == 4) {
+                dNum++;
+                first.push(key);;
+            }
+        });
+        if (dNum == 1 && pokers.length == 4) {
+            res[0] = 2;
+            res[1] = dNum;
+            res[2] = first[0];
+            return res;
+        }
+        else {
+            if (dNum * 2 == aNum && pokers.length == dNum * 4 + aNum) {
+                if (first.length == 1) {
+                    res[0] = 3;
+                    res[1] = dNum;
+                    res[2] = first[0];
+                    return res;
                 }
                 else {
-                    map.forEach((value, key) => {
-                        if (value == 3) {
-                            if (map.get(key + 1) == 3) {
-                                res[0] = 14;
-                                res[1] = key;
-                                return;
-                            }
-                            else if (map.get(key - 1) == 3) {
-                                res[0] = 14;
-                                res[1] = key - 1;
-                                return;
-                            }
+                    if (first[first.length - 1] == 11) {
+                        res[0] = -1;
+                        return res;
+                    }
+                    var i = 1;
+                    for (i = 1; i < first.length; i++) {
+                        if (first[i] != first[i - 1] + 1) {
+                            res[0] = -1;
+                            return res;
                         }
-                    });
-                }
-            }
-            else if (map.size == 3) {
-                map.forEach((value, key) => {
-                    if (value == 4) {
-                        res[0] = 32;
-                        res[1] = key;
-                        return;
                     }
-                });
-            }
-            else if (map.size == 8) {
-                var max = -1, min = 20;
-                map.forEach((value, key) => {
-                    max < key ? max = key : max;
-                    min > key ? min = key : min;
-                });
-                if (max < 12 && max - min == 7) {
-                    res[0] = 13;
-                    res[1] = min;
-                }
-            }
-        }
-        else if (pokers.length == 9) {
-            if (map.size == 3) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[3] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[6] - 2) / 4)) {
-                    res[0] = 17;
-                    res[1] = 100;
-                    map.forEach((value, key) => {
-                        res[1] > key ? res[1] = key : res[1];
-                    });
-                }
-            }
-            else if (map.size == 9) {
-                var max = -1, min = 20;
-                map.forEach((value, key) => {
-                    max < key ? max = key : max;
-                    min > key ? min = key : min;
-                });
-                if (max < 12 && max - min == 8) {
-                    res[0] = 16;
-                    res[1] = min;
-                }
-            }
-        }
-        else if (pokers.length == 10) {
-            if (map.size == 4) {
-                var valid = [0, 0];
-                var threeNum = 0;
-                var twoNum = 0;
-                map.forEach((value, key) => {
-                    if (threeNum > 2 || twoNum > 2) {
-                        return;
-                    }
-                    if (value == 2) {
-                        valid[threeNum] = 1;
-                        twoNum++;
-                    }
-                    else if (value == 3) {
-                        threeNum++;
-                    }
-                });
-                if (threeNum == 2 && twoNum == 2) {
-                    if (valid[0] == valid[1] + 1 || valid[0] == valid[1] - 1) {
-                        res[0] = 19;
-                        res[1] = valid[0] < valid[1] ? valid[0] : valid[1];
+                    if (i == first.length) {
+                        res[0] = 3;
+                        res[1] = dNum;
+                        res[2] = first[0];
                     }
                 }
             }
-            else if (map.size == 5) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[8] - 2) / 4)) {
-                    var min = 20;
-                    map.forEach((value, key) => {
-                        min > key ? min = key : min;
-                    });
-                    if (min <= 7) {
-                        res[0] = 20;
-                        res[1] = min;
-                    }
-                }
-            }
-            else if (map.size == 10) {
-                var max = -1, min = 20;
-                map.forEach((value, key) => {
-                    max < key ? max = key : max;
-                    min > key ? min = key : min;
-                });
-                if (max < 12 && max - min == 9) {
-                    res[0] = 18;
-                    res[1] = min;
-                }
-            }
-        }
-        else if (pokers.length == 11) {
-            if (map.size == 11) {
-                var max = -1, min = 20;
-                map.forEach((value, key) => {
-                    max < key ? max = key : max;
-                    min > key ? min = key : min;
-                });
-                if (max < 12 && max - min == 10) {
-                    res[0] = 21;
-                    res[1] = min;
-                }
-            }
-        }
-        else if (pokers.length == 12) {
-            if (map.size == 4) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[3] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[6] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[9] - 2) / 4)) {
-                    res[0] = 25;
-                    res[1] = 200;
-                    map.forEach((value, key) => {
-                        res[1] > key ? res[1] = key : res[1];
-                    });
-                }
-            }
-            else if (map.size == 6) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[8] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 5 == Math.floor((pokers[10] - 2) / 4)) {
-                    var min = 20;
-                    map.forEach((value, key) => {
-                        min > key ? min = key : min;
-                    });
-                    if (min < 7) {
-                        res[0] = 24;
-                        res[1] = min;
-                    }
+            if (dNum * 2 == bNum && pokers.length == dNum * 4 + bNum * 2) {
+                if (first.length == 1) {
+                    res[0] = 4;
+                    res[1] = dNum;
+                    res[2] = first[0];
+                    return res;
                 }
                 else {
-                    map.forEach((value, key) => {
-                        if (value == 3) {
-                            if (map.get(key + 1) == 3 && map.get(key + 2) == 3) {
-                                res[0] = 23;
-                                res[1] = key;
-                                return;
-                            }
-                            else if (map.get(key - 1) == 3 && map.get(key + 1) == 3) {
-                                res[0] = 23;
-                                res[1] = key - 1;
-                                return;
-                            }
-                            else if (map.get(key - 1) == 3 && map.get(key - 2) == 3) {
-                                res[0] = 23;
-                                res[1] = key - 2;
-                                return;
-                            }
+                    if (first[first.length - 1] == 11) {
+                        res[0] = -1;
+                        return res;
+                    }
+                    var i = 1;
+                    for (i = 1; i < first.length; i++) {
+                        if (first[i] != first[i - 1] + 1) {
+                            res[0] = -1;
+                            return res;
                         }
-                    });
-                }
-            }
-            else if (min < 11 && map.size == 12) {
-                var max = -1, min = 20;
-                map.forEach((value, key) => {
-                    max < key ? max = key : max;
-                    min > key ? min = key : min;
-                });
-                if (max < 12 && max - min == 11) {
-                    res[0] = 22;
-                    res[1] = min;
-                }
-            }
-        }
-        else if (pokers.length == 14) {
-            if (map.size == 7) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[8] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 5 == Math.floor((pokers[10] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 6 == Math.floor((pokers[12] - 2) / 4)) {
-                    var min = 0;
-                    map.forEach((value, key) => {
-                        min > key ? min = key : min;
-                    });
-                    if (min < 6) {
-                        res[0] = 26;
-                        res[1] = min;
+                    }
+                    if (i == first.length) {
+                        res[0] = 4;
+                        res[1] = dNum;
+                        res[2] = first[0];
                     }
                 }
             }
         }
-        else if (pokers.length == 15) {
-            if (map.size == 5) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[3] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[6] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[9] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[12] - 2) / 4)) {
-                    res[0] = 27;
-                    res[1] = 20;
-                    map.forEach((value, key) => {
-                        res[1] > key ? res[1] = key : res[1];
-                    });
-                }
-            }
-            else if (map.size == 6) {
-                var valid = [0, 0, 0];
-                var threeNum = 0;
-                var twoNum = 0;
-                map.forEach((value, key) => {
-                    if (threeNum > 3 || twoNum > 3) {
-                        return;
-                    }
-                    if (value == 2) {
-                        valid[threeNum] = 1;
-                        twoNum++;
-                    }
-                    else if (value == 3) {
-                        threeNum++;
-                    }
-                });
-                if (threeNum == 3 && twoNum == 3) {
-                    valid.sort();
-                    if (valid[0] + 1 == valid[1] && valid[0] + 2 == valid[2]) {
-                        res[0] = 26;
-                        res[1] = valid[0];
-                    }
-                }
-            }
-        }
-        else if (pokers.length == 16) {
-            if (map.size == 8) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[8] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 5 == Math.floor((pokers[10] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 6 == Math.floor((pokers[12] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 6 == Math.floor((pokers[14] - 2) / 4)) {
-                    var min = 20;
-                    map.forEach((value, key) => {
-                        min > key ? min = key : min;
-                    });
-                    if (min <= 4) {
-                        res[0] = 29;
-                        res[1] = min;
-                    }
-                }
-                else {
-                    var valid = [0, 0, 0, 0];
-                    var threeNum = 0;
-                    map.forEach((value, key) => {
-                        if (threeNum > 4) {
-                            return;
-                        }
-                        if (value == 3) {
-                            threeNum++;
-                        }
-                    });
-                    if (threeNum == 4) {
-                        valid.sort();
-                        if (valid[0] + 1 == valid[1] && valid[0] + 2 == valid[2] && valid[0] + 3 == valid[3]) {
-                            res[0] = 28;
-                            res[1] = valid[0];
-                        }
-                    }
-                }
-            }
-        }
-        else if (pokers.length == 18) {
-            if (map.size == 6) {
-                var valid = [0, 0, 0, 0, 0, 0];
-                var threeNum = 0;
-                map.forEach((value, key) => {
-                    if (threeNum > 6) {
-                        return;
-                    }
-                    if (value == 3) {
-                        threeNum++;
-                    }
-                });
-                if (threeNum == 6) {
-                    valid.sort();
-                    if (valid[0] + 5 == valid[5]) {
-                        res[0] = 30;
-                        res[1] = valid[0];
-                    }
-                }
-            }
-            else if (map.size == 8) {
-                if (Math.floor((pokers[0] - 2) / 4) + 1 == Math.floor((pokers[2] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 2 == Math.floor((pokers[4] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 3 == Math.floor((pokers[6] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 4 == Math.floor((pokers[8] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 5 == Math.floor((pokers[10] - 2) / 4) && Math.floor((pokers[0] - 2) / 4) + 6 == Math.floor((pokers[12] - 2) / 4)
-                    && Math.floor((pokers[0] - 2) / 4) + 7 == Math.floor((pokers[14] - 2) / 4)) {
-                    var min = 20;
-                    map.forEach((value, key) => {
-                        min > key ? min = key : min;
-                    });
-                    if (min <= 4) {
-                        res[0] = 31;
-                        res[1] = min;
-                    }
-                }
+
+        //所有顺子 0 - 11
+        if (aNum >= 5) {
+            var temp = 0;
+            var max = -1, min = 20;
+            map.forEach((value, key) => {
+                max < key ? max = key : max;
+                min > key ? min = key : min;
+            });
+            if (max < 12 && max - min + 1 == pokers.length) {
+                res[0] = 1;
+                res[1] = pokers.length;
+                res[2] = min;
             }
         }
         return res;
     }
-
-
 }

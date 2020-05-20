@@ -119,6 +119,8 @@ export class Room extends cc.Component {
 
             this.pokerNum[i].node.active = false;
             this.pokerNum[i].node.zIndex = 60;
+
+            this.playerAve[i].spriteFrame = this.frameSpriteframe;
         }
 
         //准备按钮
@@ -153,7 +155,11 @@ export class Room extends cc.Component {
         for (var i = 0; i < Constant.PokerNum; i++) {
             this.allPoker[i].setPosition(0, 0);
             this.allPoker[i].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[54];
+            this.allPoker[i].scale = 1;
             this.allPoker[i].active = true;
+        }
+        for (var i = 0; i < 3; i++) {
+            this.roundAnim(i, -1);
         }
         this.playerAve[0].spriteFrame = this.frameSpriteframe;
         this.playerAve[1].spriteFrame = this.frameSpriteframe;
@@ -440,7 +446,6 @@ export class Room extends cc.Component {
                     bossTime++;
                 }
             }
-            console.log("bossTime " + bossTime + " bossId " + this.game.bossId);
             if (bossTime == 0) {
                 this.init();
                 return;
@@ -449,13 +454,9 @@ export class Room extends cc.Component {
                 this.game.setBoss(this.game.bossId);
                 return;
             }
-            else if (this.game.firstPlayerId != this.game.bossId && bossTime == 2) {
-                for (var i = 0; i < 3; i++) {
-                    if (this.game.bossState[i]) {
-                        this.game.setBoss(i);
-                        return;
-                    }
-                }
+            else if (!this.game.bossState[this.game.firstPlayerId]) {
+                this.game.setBoss(this.game.bossId);
+                return;
             }
             this.game.bossState[this.game.firstPlayerId] = false;
         }
@@ -465,7 +466,7 @@ export class Room extends cc.Component {
                 this.game.setBoss(this.game.bossId);
             }
             else {
-                for (var j = 1; j <= 2; j++) {
+                for (var j = 2; j >= 1; j--) {
                     if (this.game.bossState[(this.game.firstPlayerId + j) % 3]) {
                         this.game.bossId = (this.game.firstPlayerId + j) % 3;
                         this.game.setBoss(this.game.bossId);
@@ -493,12 +494,12 @@ export class Room extends cc.Component {
             this.timerNode.getComponent(Timer).timerStart(rightPos);
             if (AiPlayer.selectBoss()) {
                 if (this.game.bossId == -1) {
-                    this.game.bossId = id;
                     this.game.players[id].textType = 1;
                 }
                 else {
                     this.game.players[id].textType = 2;
                 }
+                this.game.bossId = id;
                 this.game.bossState[id] = true;
 
             }
@@ -517,12 +518,12 @@ export class Room extends cc.Component {
             this.timerNode.getComponent(Timer).timerStart(leftPos);
             if (AiPlayer.selectBoss()) {
                 if (this.game.bossId == -1) {
-                    this.game.bossId = id;
                     this.game.players[id].textType = 1;
                 }
                 else {
                     this.game.players[id].textType = 2;
                 }
+                this.game.bossId = id;
                 this.game.bossState[id] = true;
             }
             else {
@@ -545,11 +546,12 @@ export class Room extends cc.Component {
             if (isBoss) {
                 var type = 1;
                 if (this.game.bossId == -1) {
-                    this.game.bossId = id;
+                    type = 1;
                 }
                 else {
                     type = 2;
                 }
+                this.game.bossId = id;
                 this.game.bossState[id] = true;
                 this.roundAnim(id, type);
             }
@@ -622,6 +624,7 @@ export class Room extends cc.Component {
     playCard(id: number) {
         console.log("出牌");
         this.beforplayCard(id);
+        this.game.pointer = 0;
 
         if (id == this.game.myself) {
             this.clickIsSelect = true;
@@ -631,12 +634,11 @@ export class Room extends cc.Component {
             this.playCardNode.active = true;
             this.playCardNode.getComponent(PlayCards).init(this.game);
             const callback = cc.callFunc(this.afterPlayCard, this, id);
-            this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
+            this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(3), callback, cc.delayTime(0.5)));
         }
         else if (id == (this.game.myself + 1) % 3) {
             var rightPos = [250, 150];
             this.timerNode.getComponent(Timer).timerStart(rightPos);
-
 
             var nums = new Array();
             for (var i = 0; i < this.game.players[id].pokers.length; i++) {
@@ -645,7 +647,12 @@ export class Room extends cc.Component {
                 }
                 nums.push(this.game.players[id].pokers[i]);
             }
-            this.game.players[id].lastPokers = AiPlayer.playCards(nums);
+            var pokers = AiPlayer.playCards(nums);
+            pokers.sort(this.compareAsc);
+            console.log("出牌 poker", pokers);
+            this.game.players[id].lastPokers = pokers;
+
+
             var j = 0;
             for (var i = 0; i < this.game.players[id].pokers.length; i++) {
                 if (this.game.players[id].playedPokers[i]) {
@@ -655,30 +662,37 @@ export class Room extends cc.Component {
                     this.game.players[id].playedPokers[i] = true;
                     j++;
                 }
+                if (j == this.game.players[id].lastPokers.length) {
+                    break;
+                }
             }
 
             this.game.players[id].validPokerNum -= this.game.players[id].lastPokers.length;
             this.game.lastTypeAndSize = this.game.getPokerTypeAndLevel(this.game.players[id].lastPokers);
 
 
-            const callback = cc.callFunc(this.afterPlayCard, this, id);
-            this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
             setTimeout(() => {
                 this.playCardCalbak(id, true);
-            }, 500);
+            }, 800);
         }
         else {
             var leftPos = [-250, 150];
             this.timerNode.getComponent(Timer).timerStart(leftPos);
 
             var nums = new Array();
+
             for (var i = 0; i < this.game.players[id].pokers.length; i++) {
                 if (this.game.players[id].playedPokers[i]) {
                     continue;
                 }
                 nums.push(this.game.players[id].pokers[i]);
             }
-            this.game.players[id].lastPokers = AiPlayer.playCards(nums);
+
+            var pokers = AiPlayer.playCards(nums);
+            this.game.players[id].lastPokers = pokers;
+            console.log("poker", pokers);
+            pokers.sort(this.compareAsc);
+
             var j = 0;
             for (var i = 0; i < this.game.players[id].pokers.length; i++) {
                 if (this.game.players[id].playedPokers[i]) {
@@ -688,19 +702,39 @@ export class Room extends cc.Component {
                     this.game.players[id].playedPokers[i] = true;
                     j++;
                 }
+                if (j == this.game.players[id].lastPokers.length) {
+                    break;
+                }
             }
-            console.log("有效 ed  " + this.game.players[id].validPokerNum);
-            console.log("this.game.players[id].lastPokers.length " + this.game.players[id].lastPokers.length);
             this.game.players[id].validPokerNum -= this.game.players[id].lastPokers.length;
             this.game.lastTypeAndSize = this.game.getPokerTypeAndLevel(this.game.players[id].lastPokers);
 
-
-            const callback = cc.callFunc(this.afterPlayCard, this, id);
-            this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
             setTimeout(() => {
                 this.playCardCalbak(id, true);
-            }, 500);
+            }, 800);
 
+        }
+    }
+
+    compareAsc(numA: number, numB: number) {
+        var A = numA, B = numB;
+        if (A == 1) {
+            A += 54;
+        }
+        else if (A == 0) {
+            A += 56;
+        }
+        if (B == 1) {
+            B += 54;
+        }
+        else if (B == 0) {
+            B += 56;
+        }
+        if (A < B) {
+            return -1;
+        }
+        else {
+            return 1;
         }
     }
 
@@ -719,7 +753,6 @@ export class Room extends cc.Component {
         this.alerNode.stopAction(this.timerCalBak[id]);
         this.game.players[this.game.myself].isOperate = false;
         if (isPlay) {
-            this.game.pointer = 0;
             this.play(id);
         }
         else {
@@ -730,30 +763,133 @@ export class Room extends cc.Component {
     }
 
     afterPlayCard(target, id: number) {
+
         if (id == this.game.myself) {
-            console.log("setTimeout4");
-            if (!this.game.players[id].isOperate) {
+            var nums = new Array();
+            for (var i = 0; i < this.game.players[id].pokers.length; i++) {
+                if (this.game.players[id].playedPokers[i]) {
+                    continue;
+                }
+                nums.push(this.game.players[id].pokers[i]);
+            }
+
+            var pokers = AiPlayer.playCards(nums);
+            pokers.sort(this.compareAsc);
+            console.log("出牌poker", pokers);
+            this.game.players[id].lastPokers = pokers;
+
+
+            var j = 0;
+            for (var i = 0; i < this.game.players[id].pokers.length; i++) {
+                if (this.game.players[id].playedPokers[i]) {
+                    continue;
+                }
+                if (this.game.players[id].lastPokers[j] == this.game.players[id].pokers[i]) {
+                    this.game.players[id].playedPokers[i] = true;
+                    j++;
+                }
+                if (j == this.game.players[id].lastPokers.length) {
+                    break;
+                }
+            }
+
+            var midPos = [this.pokerLeft + Constant.PokerWidth / 2, -220 + 180];
+            var left = -1 * Math.floor((pokers.length * Constant.PokerWidth / 8 + Constant.PokerWidth * 0.8) / 2);
+            midPos[0] = left + Constant.PokerWidth / 2;
+            for (i = 0; i < pokers.length; i++) {
+                this.allPoker[pokers[i]].setPosition(midPos[0], midPos[1]);
+                this.allPoker[pokers[i]].scale = 0.7;
+                midPos[0] += Constant.PokerWidth / 8;
+            }
+            this.game.players[id].validPokerNum -= pokers.length;
+            this.game.lastTypeAndSize = this.game.getPokerTypeAndLevel(this.game.players[id].lastPokers);
+
+
+            if (this.game.players[id].validPokerNum == 0) {
+                //游戏结束
+                setTimeout(() => {
+                    this.restart();
+                }, 2000);
 
             }
         }
         else if (id == (this.game.myself + 1) % 3) {
-            console.log("setTimeout5");
-            // this.timerStop();
+
         }
+
         else {
-            console.log("setTimeout6");
-            // this.timerStop();
+
         }
         this.afterPlay(id);
     }
 
+    afterConnCard(target, id: number) {
+
+        if (id == this.game.myself) {
+            var nums = new Array();
+            for (var i = 0; i < this.game.players[id].pokers.length; i++) {
+                if (this.game.players[id].playedPokers[i]) {
+                    continue;
+                }
+                nums.push(this.game.players[id].pokers[i]);
+            }
+
+
+            console.log("this.game.lastTypeAndSize", this.game.lastTypeAndSize);
+            var pokers = AiPlayer.connCards(nums, this.game.lastTypeAndSize);
+            pokers.sort(this.compareAsc);
+            this.game.players[id].lastPokers = pokers;
+            console.log("poker", pokers);
+
+            if (pokers.length == 0) {
+                this.roundAnim(id, 3);
+                this.game.pointer++;
+            }
+            else {
+                this.game.pointer = 0;
+                var j = 0;
+                for (var i = 0; i < this.game.players[id].pokers.length; i++) {
+                    if (this.game.players[id].playedPokers[i]) {
+                        continue;
+                    }
+                    if (this.game.players[id].lastPokers[j] == this.game.players[id].pokers[i]) {
+                        this.game.players[id].playedPokers[i] = true;
+                        j++;
+                    }
+                }
+                this.game.players[id].validPokerNum -= this.game.players[id].lastPokers.length;
+
+                var midPos = [this.pokerLeft + Constant.PokerWidth / 2, -220 + 180];
+                var left = -1 * Math.floor((nums.length * Constant.PokerWidth / 5 + Constant.PokerWidth * 0.8) / 2 * 0.7);
+                midPos[0] = left + Constant.PokerWidth / 2 * 0.7;
+                for (i = 0; i < this.game.players[id].lastPokers.length; i++) {
+                    this.allPoker[this.game.players[id].lastPokers[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[this.game.players[id].lastPokers[i]];
+                    this.allPoker[this.game.players[id].lastPokers[i]].zIndex = i;
+                    this.allPoker[this.game.players[id].lastPokers[i]].setPosition(midPos[0], midPos[1]);
+                    this.allPoker[this.game.players[id].lastPokers[i]].scale = 0.7;
+                    midPos[0] += Constant.PokerHeight / 5 * 0.7;
+                }
+                this.game.lastTypeAndSize = this.game.getPokerTypeAndLevel(this.game.players[id].lastPokers);
+            }
+        }
+        else if (id == (this.game.myself + 1) % 3) {
+
+        }
+
+        else {
+
+        }
+        this.afterPlay(id);
+    }
+
+
+
     afterPlay(id: number) {
         this.clickIsSelect = false;
         this.clickstate = Constant.ClickNothing;
-        if (this.game.state == Constant.ready) {
-            return;
-        }
+
         this.playCardNode.active = false;
+
         if (id == this.game.myself) {
             this.initPoker();
         }
@@ -762,6 +898,15 @@ export class Room extends cc.Component {
         }
         else {
             this.pokerNum[2].string = this.game.players[id].validPokerNum.toString();
+        }
+
+        if (this.game.players[id].validPokerNum == 0) {
+            //游戏结束
+            console.log("有效 " + this.game.players[id].validPokerNum);
+            setTimeout(() => {
+                this.restart();
+            }, 2000);
+            return;
         }
         setTimeout(() => {
             this.game.main(Constant.connCard, (id + 1) % 3);
@@ -776,6 +921,7 @@ export class Room extends cc.Component {
 
     //接牌
     connCard(id: number) {
+        console.log("接牌");
         if (this.game.pointer == 2) {
             this.game.main(Constant.playCard, id);
             return;
@@ -788,15 +934,14 @@ export class Room extends cc.Component {
         }
         this.game.state = Constant.connCard;
 
-        console.log("接牌 " + id);
         if (id == this.game.myself) {
             this.clickIsSelect = true;
             var midPos = [-180, -220 + 150];
             this.timerNode.getComponent(Timer).timerStart(midPos);
             this.playCardNode.active = true;
             this.playCardNode.getComponent(PlayCards).init(this.game);
-            const callback = cc.callFunc(this.afterPlayCard, this, id);
-            this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
+            const callback = cc.callFunc(this.afterConnCard, this, id);
+            this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(3), callback, cc.delayTime(0.5)));
         }
         else if (id == (this.game.myself + 1) % 3) {
             var rightPos = [250, 150];
@@ -810,7 +955,12 @@ export class Room extends cc.Component {
                 }
                 nums.push(this.game.players[id].pokers[i]);
             }
-            this.game.players[id].lastPokers = AiPlayer.connCards(nums, this.game.lastTypeAndSize);
+
+            console.log("this.game.lastTypeAndSize", this.game.lastTypeAndSize);
+            var pokers = AiPlayer.connCards(nums, this.game.lastTypeAndSize);
+            this.game.players[id].lastPokers = pokers;
+            console.log("poker", pokers);
+
             if (this.game.players[id].lastPokers.length == 0) {
                 isPlay = false;
             }
@@ -825,14 +975,17 @@ export class Room extends cc.Component {
                         this.game.players[id].playedPokers[i] = true;
                         j++;
                     }
+                    if (j == this.game.players[id].lastPokers.length) {
+                        break;
+                    }
                 }
                 this.game.players[id].validPokerNum -= this.game.players[id].lastPokers.length;
+                this.game.lastTypeAndSize = this.game.getPokerTypeAndLevel(this.game.players[id].lastPokers);
             }
-            const callback = cc.callFunc(this.afterPlayCard, this, id);
-            this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
+
             setTimeout(() => {
                 this.playCardCalbak(id, isPlay);
-            }, 500);
+            }, 800);
         }
         else {
             var leftPos = [-250, 150];
@@ -846,7 +999,12 @@ export class Room extends cc.Component {
                 }
                 nums.push(this.game.players[id].pokers[i]);
             }
-            this.game.players[id].lastPokers = AiPlayer.connCards(nums, this.game.lastTypeAndSize);
+
+            console.log("this.game.lastTypeAndSize", this.game.lastTypeAndSize);
+            var pokers = AiPlayer.connCards(nums, this.game.lastTypeAndSize);
+            this.game.players[id].lastPokers = pokers;
+            console.log("poker", pokers);
+
             if (this.game.players[id].lastPokers.length == 0) {
                 isPlay = false;
             }
@@ -861,16 +1019,18 @@ export class Room extends cc.Component {
                         this.game.players[id].playedPokers[i] = true;
                         j++;
                     }
+                    if (j == this.game.players[id].lastPokers.length) {
+                        break;
+                    }
                 }
                 this.game.players[id].validPokerNum -= this.game.players[id].lastPokers.length;
+                this.game.lastTypeAndSize = this.game.getPokerTypeAndLevel(this.game.players[id].lastPokers);
             }
-            const callback = cc.callFunc(this.afterPlayCard, this, id);
-            this.timerCalBak[id] = this.node.runAction(cc.sequence(cc.delayTime(20), callback));
+
             setTimeout(() => {
                 this.playCardCalbak(id, isPlay);
-            }, 500);
+            }, 800);
         }
-        console.log("接牌");
     }
 
 
@@ -881,11 +1041,12 @@ export class Room extends cc.Component {
             for (var i = 0; i < this.game.host.length; i++) {
                 this.allPoker[this.game.host[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[this.game.host[i]];
             }
+
         }, this);
         var callbackB;
         if (id == this.game.myself) {
             this.pokerLeft = -1 * Math.floor((this.game.players[id].validPokerNum * Constant.PokerWidth / 5 + Constant.PokerWidth / 4) / 2);//初始化手牌边界
-
+            this.playerAve[0].spriteFrame = this.boosSpriteframe;
 
             //移动手牌到指定位置 把地主拍放入手中
             callbackB = cc.callFunc(() => {
@@ -908,36 +1069,37 @@ export class Room extends cc.Component {
                 for (var i = 0; i < this.game.host.length; i++) {
                     this.allPoker[this.game.host[i]].runAction(cc.sequence(cc.delayTime(0.3), cc.moveTo(0.4, pos[i * 2], pos[i * 2 + 1])));
                 }
-                this.playerAve[0].spriteFrame = this.boosSpriteframe;
+
             }, this);
         }
         else if (id == (this.game.myself + 1) % 3) {
             callbackB = cc.callFunc(() => {
+                this.playerAve[1].spriteFrame = this.boosSpriteframe;
                 var rightPos = [350, 0];
                 this.pokerNum[1].string = this.game.players[1].validPokerNum.toString();
                 for (var i = 0; i < this.game.host.length; i++) {
                     this.allPoker[this.game.host[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[54];
                     this.allPoker[this.game.host[i]].runAction(cc.moveTo(0.2, rightPos[0], rightPos[1]));
                 }
-                this.playerAve[0].spriteFrame = this.boosSpriteframe;
+
             }, this);
         }
         else {
             callbackB = cc.callFunc(() => {
+                this.playerAve[2].spriteFrame = this.boosSpriteframe;
                 var leftPos = [-350, 0];
                 this.pokerNum[2].string = this.game.players[2].validPokerNum.toString();
                 for (var i = 0; i < this.game.host.length; i++) {
                     this.allPoker[this.game.host[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[54];
                     this.allPoker[this.game.host[i]].runAction(cc.moveTo(0.2, leftPos[0], leftPos[1]));
                 }
-                this.playerAve[0].spriteFrame = this.boosSpriteframe;
+
             }, this);
         }
         const callbackC = cc.callFunc((target) => {
             for (var i = 0; i < 3; i++) {
                 this.roundAnim(i, -1);
             }
-
             this.isSelect = new Array(this.game.players[this.game.myself].pokers.length);
             this.game.main(Constant.playCard, this.game.bossId);//出牌
         }, this);
@@ -976,7 +1138,10 @@ export class Room extends cc.Component {
         var leftPos = [-250 + 135, 100];
         var midPos = [this.pokerLeft + Constant.PokerWidth / 2, -220 + 180];
         var rightPos = [250 - 135, 100];
+
         if (id == this.game.myself) {
+
+
             var nums = new Array();
             var i = 0;
             for (i = 0; i < this.game.players[id].pokers.length; i++) {
@@ -988,51 +1153,57 @@ export class Room extends cc.Component {
                     nums.push(this.game.players[id].pokers[i]);
                 }
             }
-            var left = -1 * Math.floor((nums.length * Constant.PokerWidth / 5 + Constant.PokerWidth * 0.8) / 2);
+
+            var left = -1 * Math.floor((nums.length * Constant.PokerWidth / 8 + Constant.PokerWidth * 0.8) / 2);
             midPos[0] = left + Constant.PokerWidth / 2;
             for (i = 0; i < nums.length; i++) {
                 this.allPoker[nums[i]].setPosition(midPos[0], midPos[1]);
-                midPos[0] += Constant.PokerWidth / 5;
+                this.allPoker[nums[i]].scale = 0.7;
+                midPos[0] += Constant.PokerWidth / 8;
             }
+
             this.game.players[id].lastPokers = nums;
             this.game.players[id].validPokerNum -= nums.length;
-            this.game.lastTypeAndSize = this.touchPokerType;
+
+
         }
         else if (id == (this.game.myself + 1) % 3) {
-            var top = Math.floor((this.game.players[id].lastPokers.length * Constant.PokerHeight / 4 + Constant.PokerHeight * 0.75) / 2);//初始化手牌边界
-            rightPos[1] = top + Constant.PokerWidth / 2;
+
+            var left = Math.floor((this.game.players[id].lastPokers.length * Constant.PokerHeight / 8 + Constant.PokerHeight * 0.8) / 2);//初始化手牌边界
+            rightPos[0] = left + Constant.PokerWidth / 2;
             for (i = 0; i < this.game.players[id].lastPokers.length; i++) {
                 this.allPoker[this.game.players[id].lastPokers[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[this.game.players[id].lastPokers[i]];
+                this.allPoker[this.game.players[id].lastPokers[i]].zIndex = this.game.players[id].lastPokers.length - i;
                 this.allPoker[this.game.players[id].lastPokers[i]].setPosition(rightPos[0], rightPos[1]);
-                rightPos[1] -= Constant.PokerHeight / 4;
+                this.allPoker[this.game.players[id].lastPokers[i]].scale = 0.7;
+                rightPos[0] -= Constant.PokerHeight / 8;
             }
+
         }
         else {
-            var top = Math.floor((this.game.players[id].lastPokers.length * Constant.PokerHeight / 4 + Constant.PokerHeight * 0.75) / 2);//初始化手牌边界
-            rightPos[1] = top + Constant.PokerWidth / 2;
+            var left = Math.floor((this.game.players[id].lastPokers.length * Constant.PokerHeight / 8 + Constant.PokerHeight * 0.8) / 2);//初始化手牌边界
+            leftPos[0] = -1 * (left + Constant.PokerWidth / 2);
             for (i = 0; i < this.game.players[id].lastPokers.length; i++) {
                 this.allPoker[this.game.players[id].lastPokers[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[this.game.players[id].lastPokers[i]];
+                this.allPoker[this.game.players[id].lastPokers[i]].zIndex = i;
                 this.allPoker[this.game.players[id].lastPokers[i]].setPosition(leftPos[0], leftPos[1]);
-                rightPos[1] -= Constant.PokerHeight / 4;
+                this.allPoker[this.game.players[id].lastPokers[i]].scale = 0.7;
+                leftPos[0] += Constant.PokerHeight / 8;
             }
         }
-        if (this.game.players[id].validPokerNum == 0) {
-            //游戏结束
-            console.log("有效 " + this.game.players[id].validPokerNum);
-            this.restart();
-        }
+
     }
 
 
     initPoker() {
-        var newLefet = -1 * Math.floor((this.game.players[this.game.myself].validPokerNum * Constant.PokerWidth / 5 + Constant.PokerWidth / 4) / 2);//初始化手牌边界
+
+        var newLefet = -1 * Math.floor((this.game.players[this.game.myself].validPokerNum * Constant.PokerWidth / 5 + Constant.PokerWidth * 0.8) / 2);//初始化手牌边界
         this.pokerLeft = newLefet;
         var midPos = [this.pokerLeft + Constant.PokerWidth / 2, -220];
         for (var i = 0; i < this.game.players[this.game.myself].pokers.length; i++) {
             if (this.game.players[this.game.myself].playedPokers[i]) {
                 continue;
             }
-            //this.allPoker[this.game.pokerSize + i].runAction(cc.sequence(cc.moveTo(0.1, midPos[0], midPos[1])));
             this.allPoker[this.game.players[this.game.myself].pokers[i]].color = cc.color(255, 255, 255);
             this.allPoker[this.game.players[this.game.myself].pokers[i]].setPosition(midPos[0], midPos[1]);
             midPos[0] += Constant.PokerWidth / 5;
@@ -1040,6 +1211,7 @@ export class Room extends cc.Component {
         for (var i = 0; i < this.isSelect.length; i++) {
             this.isSelect[i] = false;
         }
+
     }
 
     //发牌B
@@ -1086,6 +1258,6 @@ export class Room extends cc.Component {
     }
 
     onDestroy() {
-        
+
     }
 }
