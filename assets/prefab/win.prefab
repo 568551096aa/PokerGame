@@ -24,11 +24,11 @@
     "_level": 1,
     "_components": [
       {
-        "__id__": 18
+        "__id__": 19
       }
     ],
     "_prefab": {
-      "__id__": 19
+      "__id__": 20
     },
     "_opacity": 255,
     "_color": {
@@ -91,9 +91,13 @@
     ],
     "_active": true,
     "_level": 2,
-    "_components": [],
+    "_components": [
+      {
+        "__id__": 17
+      }
+    ],
     "_prefab": {
-      "__id__": 17
+      "__id__": 18
     },
     "_opacity": 255,
     "_color": {
@@ -105,8 +109,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 400,
-      "height": 300
+      "width": 650,
+      "height": 433
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -279,8 +283,8 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 0,
-      "y": -60,
+      "x": -2,
+      "y": -108,
       "z": 0
     },
     "_scale": {
@@ -443,8 +447,8 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_string": "确定",
-    "_N$string": "确定",
+    "_string": "确",
+    "_N$string": "确",
     "_fontSize": 20,
     "_lineHeight": 40,
     "_enableWrapText": false,
@@ -481,7 +485,7 @@
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
     "_spriteFrame": {
-      "__uuid__": "f0048c10-f03e-4c97-b9d3-3506e1d58952"
+      "__uuid__": "67bf43f6-515f-4d95-b7c0-114879161f66"
     },
     "_type": 1,
     "_sizeMode": 0,
@@ -640,6 +644,34 @@
     },
     "fileId": "3bt6r/or9P+5Le3zsYEZHv",
     "sync": false
+  },
+  {
+    "__type__": "cc.Sprite",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 2
+    },
+    "_enabled": true,
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
+    "_spriteFrame": {
+      "__uuid__": "cc6d56f3-97a1-44b5-98b3-edfb280a5792"
+    },
+    "_type": 0,
+    "_sizeMode": 1,
+    "_fillType": 0,
+    "_fillCenter": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 0
+    },
+    "_fillStart": 0,
+    "_fillRange": 0,
+    "_isTrimmedMode": true,
+    "_state": 0,
+    "_atlas": null,
+    "_id": ""
   },
   {
     "__type__": "cc.PrefabInfo",

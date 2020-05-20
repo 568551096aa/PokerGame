@@ -89,24 +89,23 @@ export class AiPlayer {
             }
             var beg = 0;
             for (var j = i + 1; j < aFirst.length; j++) {
-                if (aFirst[j] = aFirst[j - 1] + 1) {
+                if (aFirst[j] == aFirst[j - 1] + 1) {
                     beg++;
-                    if (beg == type[1]) {
-                        var k = i;
-                        for (var k = 0; k < pokers.length; k++) {
-                            if (Math.floor((pokers[k] - 2) / 4) == aFirst[k]) {
-                                nums.push(pokers[k]);
-                                k++;
-                                if (k == type[1]) {
-                                    break;
-                                }
-                            }
-                        }
-                        return nums;
-                    }
                 }
                 else {
                     break;
+                }
+                if (beg == type[1]) {
+                    var bite = i;
+                    for (var k = 0; k < pokers.length; k++) {
+                        if (Math.floor((pokers[k] - 2) / 4) == aFirst[bite]) {
+                            nums.push(pokers[k]);
+                            bite++;
+                            if (k == type[1]) {
+                                return nums;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -326,7 +325,6 @@ export class AiPlayer {
             return nums;
         }
         if (type[0] == 1 && type[2] != 7) {
-            var max = -1, min = 20;
             var aFirst = new Array();
             var aNum = 0;
             map.forEach((value, key) => {
@@ -344,14 +342,14 @@ export class AiPlayer {
                 }
                 var beg = 0;
                 for (var j = i + 1; j < aFirst.length; j++) {
-                    if (aFirst[j] = aFirst[j - 1] + 1) {
+                    if (aFirst[j] == aFirst[j - 1] + 1) {
                         beg++;
                         if (beg == type[1]) {
-                            var k = i;
+                            var bite = i;
                             for (var k = 0; k < pokers.length; k++) {
-                                if (Math.floor((pokers[k] - 2) / 4) == aFirst[k]) {
+                                if (Math.floor((pokers[k] - 2) / 4) == aFirst[bite]) {
                                     nums.push(pokers[k]);
-                                    k++;
+                                    bite++;
                                     if (k == type[1]) {
                                         break;
                                     }
@@ -729,6 +727,7 @@ export class AiPlayer {
                         }
                     }
                     if (type[1] == 1 && bFirst[i] > type[2]) {
+                        var beg = 0;
                         var two = 0;
                         for (var k = 0; k < pokers.length; k++) {
                             if (Math.floor((pokers[k] - 2) / 4) == bFirst[beg + i]) {

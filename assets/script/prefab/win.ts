@@ -27,6 +27,7 @@ export class win extends cc.Component {
 
         this.game.restart();
         this.node.active = false;
+        this.clickstate = false;
     }
 
 }

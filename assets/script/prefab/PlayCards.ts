@@ -52,7 +52,6 @@ export class PlayCards extends cc.Component {
             }
 
         }
-
         this.clickstate = false;
     }
 
