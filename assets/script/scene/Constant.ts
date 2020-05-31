@@ -59,6 +59,8 @@ export class Constant {
 
 
     static COMMAND_BIND = 15;//绑定用户信息
+    static COMMAND_TUOGUAN= 16;//托管
+
 
     static COMMAND_RECOVER_GAME = "receive_game";//重启游戏
     static COMMAND_MATCH = "startmatch";//开始匹配

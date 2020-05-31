@@ -15,6 +15,9 @@
     "_children": [
       {
         "__id__": 2
+      },
+      {
+        "__id__": 21
       }
     ],
     "_active": false,
@@ -41,8 +44,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.61875,
-      "y": 0.61875,
+      "x": 0.4125,
+      "y": 0.4125,
       "z": 1
     },
     "_quat": {
@@ -893,6 +896,111 @@
     "gameModePrefab": {
       "__uuid__": "15809d66-92c1-4f1c-adcf-755847c3dc73"
     },
+    "persisNode": {
+      "__id__": 21
+    },
     "_id": "efs6UKaixEpJMFG2c9IGOl"
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "Consist",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 1
+    },
+    "_children": [],
+    "_active": true,
+    "_level": 1,
+    "_components": [
+      {
+        "__id__": 22
+      },
+      {
+        "__id__": 23
+      },
+      {
+        "__id__": 24
+      }
+    ],
+    "_prefab": null,
+    "_opacity": 255,
+    "_color": {
+      "__type__": "cc.Color",
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 255
+    },
+    "_contentSize": {
+      "__type__": "cc.Size",
+      "width": 0,
+      "height": 0
+    },
+    "_anchorPoint": {
+      "__type__": "cc.Vec2",
+      "x": 0.5,
+      "y": 0.5
+    },
+    "_position": {
+      "__type__": "cc.Vec3",
+      "x": 480,
+      "y": 320,
+      "z": 0
+    },
+    "_scale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_rotationX": 0,
+    "_rotationY": 0,
+    "_quat": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_skewX": 0,
+    "_skewY": 0,
+    "groupIndex": 0,
+    "_id": "83TAxT0pZPF6tVkmV976uB"
+  },
+  {
+    "__type__": "1a4d7DJ/aNKDLSG8XE/06ff",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 21
+    },
+    "_enabled": true,
+    "_id": "98le1jN+9CQ5ChB3L2jg1o"
+  },
+  {
+    "__type__": "1a4d7DJ/aNKDLSG8XE/06ff",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 21
+    },
+    "_enabled": true,
+    "_id": "e47kfTs31DNLDZ/n2d2mQV"
+  },
+  {
+    "__type__": "b43f9DWf3NOIop5DV8GV7U/",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 21
+    },
+    "_enabled": true,
+    "commonTouast": {
+      "__uuid__": "b02694c4-b975-476d-a90b-426c783a5982"
+    },
+    "TextTouast": {
+      "__uuid__": "5641196a-a95a-48e2-92aa-0d22e554a176"
+    },
+    "_id": "34KgUPkFVMuLd2BrktLASm"
   }
 ]

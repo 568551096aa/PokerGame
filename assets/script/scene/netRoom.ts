@@ -6,6 +6,7 @@ import { Timer } from "../prefab/Timer";
 import { Player } from "../Player";
 import { socket } from "../serve/Socket"
 import { win } from "../prefab/win";
+import { Manager } from "./Consist";
 
 const { ccclass, property } = cc._decorator;
 
@@ -16,6 +17,9 @@ export class Room extends cc.Component {
 
     @property(cc.Node)
     alerNode: cc.Node = null;
+
+    @property(cc.Node)
+    tuoguanNode: cc.Node = null;
 
     @property(cc.Node)
     readyBtn: cc.Node = null;
@@ -60,9 +64,18 @@ export class Room extends cc.Component {
     @property(cc.SpriteFrame)
     boosSpriteframe: cc.SpriteFrame = null;
 
+    @property(cc.Label)
+    TuoguanLeble: cc.Label = null;
+
     @property(cc.SpriteFrame)
     frameSpriteframe: cc.SpriteFrame = null;
 
+
+    @property(cc.Label)
+    scoreLabel: cc.Label = null;
+
+    @property(cc.Node)
+    tuoguanBut: cc.Node = null;
 
     private playCardNode: cc.Node = null;
     private selectBossNode: cc.Node = null;
@@ -97,6 +110,8 @@ export class Room extends cc.Component {
     pokerSize: number = 17;
     id: number = 0;//当前叫话人
     isPlay: boolean = false;
+    isTuoguan: boolean = false;
+    score: number = 1;
 
     onLoad() {
         for (var i = 0; i < Constant.PokerNum; i++) {
@@ -123,12 +138,15 @@ export class Room extends cc.Component {
             cc.director.on(Constant.COMMAND_OPESELECTBOSS.toString(), this.selectBossCalbak, this);
             cc.director.on(Constant.COMMAND_OPERPLAYCARD.toString(), this.playCardCalbak, this);
             cc.director.on(Constant.COMMAND_OPERCONNCARD.toString(), this.connCardCalbak, this);
-            cc.director.on(Constant.COMMAND_RECONN.toString(), this.startGame, this);
+            cc.director.on(Constant.COMMAND_RECONN.toString(), this.reconnect, this);
             cc.director.on(Constant.COMMAND_GMAEEND.toString(), this.GAMEOVER, this);
             cc.director.on(Constant.COMMAND_SETBOSS.toString(), this.setBoss, this);
             cc.director.on(Constant.COMMAND_SELECTBOSS.toString(), this.selectBoss, this);
             cc.director.on(Constant.COMMAND_PLAYCARD.toString(), this.playCard, this);
             cc.director.on(Constant.COMMAND_CONNCARD.toString(), this.connCard, this);
+            cc.director.on(Constant.COMMAND_TUOGUAN.toString(), this.tuoguancall, this);
+            this.tuoguanBut.active = false;
+
         }
         else if (Constant.isZzh()) {
 
@@ -543,6 +561,7 @@ export class Room extends cc.Component {
         var id = data.id;
         this.bossId = data.bossId;
         this.state = Constant.selectBoss;
+        var score = data.score;
         if (id == this.myself) {
             //出牌显示 设置20s的定时器 如果手动选择则调main 否则在定时器的回调里main  如果首位玩家已经叫了地主后又到了这位玩家
             //继续抢地主则为最终地主 否则最先抢地主的玩家是地主
@@ -560,8 +579,11 @@ export class Room extends cc.Component {
         else {
             var leftPos = [-250, 150];
             this.timerNode.getComponent(Timer).timerStart(leftPos);
-
         }
+    }
+
+    setScore(score) {
+        this.scoreLabel.string = score.toString() + "倍";
     }
 
     //主动地主操作
@@ -605,6 +627,9 @@ export class Room extends cc.Component {
         this.beforplayCard(id);
 
         if (id == this.myself) {
+            if (this.isTuoguan) {
+                return;
+            }
             this.clickIsSelect = true;
             var midPos = [-180, -220 + 150];
             this.timerNode.getComponent(Timer).timerStart(midPos);
@@ -646,6 +671,7 @@ export class Room extends cc.Component {
         var id = data.id;
         var isPlay = data.isPlay;
         var num = data.pokers;
+        var score = data.score;
         if (data.pokers == null) {
             num = new Array();
         }
@@ -682,6 +708,7 @@ export class Room extends cc.Component {
         var id = data.id;
         var isPlay = data.isPlay;
         var num = data.pokers;
+        var score = data.score;
         if (data.pokers == null) {
             num = new Array();
         }
@@ -764,6 +791,9 @@ export class Room extends cc.Component {
         this.state = Constant.connCard;
 
         if (id == this.myself) {
+            if (this.isTuoguan) {
+                return;
+            }
             this.clickIsSelect = true;
             var midPos = [-180, -220 + 150];
             this.timerNode.getComponent(Timer).timerStart(midPos);
@@ -799,7 +829,56 @@ export class Room extends cc.Component {
         socket.connCard(this.myself, nums);
     }
 
+    reconnect(data) {
+        var id = data.id;
+        this.state = data.state;
+        this.myself = data.muself;
+        this.players[this.myself].pokers = data.pokers;
+        this.players[this.myself].playedPokers = data.playedPokers;
+        var idConn = data.isConn;
+        var ConnPokers = data.ConnPokers;
+        
 
+        this.isTuoguan = data.tuoguan;
+        this.score = data.score;
+        if (this.isTuoguan) {
+            this.TuoguanLeble.node.active = true;
+            this.clickstate = Constant.ClickMoveing;
+        }
+        else {
+            this.TuoguanLeble.node.active = false;
+            this.clickstate = Constant.ClickNothing;
+        }
+        this.setScore(this.score);
+        this.initPoker();
+        if (id == this.myself) {
+            var midPos = [-180, -220 + 150];
+            this.timerNode.getComponent(Timer).timerStart(midPos);
+            this.playCardNode.active = true;
+            this.playCardNode.getComponent(PlayCards).init(this);
+        }
+        else {
+            for (var i = 0; i < idConn.length; i++) {
+                this.players[idConn[i]].lastPokers = ConnPokers[i];
+                this.play(idConn[i]);
+            }
+        }
+    }
+
+    tuoguancall(body) {
+        var id = body.id;
+        var tuoguan = body.tuoguan;
+        this.isTuoguan = tuoguan;
+
+        if (this.isTuoguan) {
+            this.TuoguanLeble.node.active = true;
+            this.clickstate = Constant.ClickMoveing;
+        }
+        else {
+            this.TuoguanLeble.node.active = false;
+            this.clickstate = Constant.ClickNothing;
+        }
+    }
 
     setBoss(data) {
         var id = data.id;
@@ -1005,7 +1084,7 @@ export class Room extends cc.Component {
         this.clickstate = Constant.ClickStart;
 
         socket.ready();
-
+        this.tuoguanBut.active = true;
         this.readyBtn.active = false;
         this.loding.node.active = true;
         this.clickstate = Constant.ClickNothing;
@@ -1019,6 +1098,29 @@ export class Room extends cc.Component {
         this.onDestroy();
         cc.director.loadScene("Home");
     }
+
+    onClickTuoguan() {
+        if (this.clickstate == Constant.ClickStart) {
+            return;
+        }
+        this.clickstate = Constant.ClickStart;
+        this.isTuoguan = !this.isTuoguan;
+
+
+        if (this.isTuoguan) {
+            this.TuoguanLeble.node.active = true;
+            this.clickstate = Constant.ClickMoveing;
+        }
+        else {
+            this.TuoguanLeble.node.active = false;
+            this.clickstate = Constant.ClickNothing;
+        }
+        socket.Tuoguan(this.isTuoguan);
+        this.clickstate = Constant.ClickNothing;
+    }
+
+
+
 
     onDestroy() {
     }

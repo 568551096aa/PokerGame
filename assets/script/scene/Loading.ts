@@ -10,6 +10,7 @@ export class Loading extends cc.Component {
     @property(cc.Label)
     configLabel: cc.Label = null;
 
+
     @property(cc.ProgressBar)
     processBar: cc.ProgressBar = null;
 
@@ -21,6 +22,11 @@ export class Loading extends cc.Component {
 
     @property(cc.Prefab)
     gameModePrefab: cc.Prefab = null;
+
+    @property(cc.Node)
+    persisNode: cc.Node = null;
+
+
     async onLoad() {
 
         /*var res = await Http.httpPost("http://192.168.2.127:3000", JSON.stringify({
@@ -39,7 +45,7 @@ export class Loading extends cc.Component {
                 
             }, 10);
         }, 10)*/
-
+        cc.game.addPersistRootNode(this.persisNode);
     }
 
     showMenu() {

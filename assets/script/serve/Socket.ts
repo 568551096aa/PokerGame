@@ -10,6 +10,8 @@ export class Socket {
     private binded: boolean = false; //是否绑定
     private heartBeatHandler = null;; //心跳检测
 
+    isrec = false;
+
     tryConnect() {
         if (!this.opened) {
             this.resetConnect();
@@ -104,7 +106,7 @@ export class Socket {
             header: {
                 command_id: commandId,
                 packet_id: ++this.packetId,
-                uid:  Constant.uid
+                uid: Constant.uid
             },
             body: JSON.stringify(body),
         };
@@ -169,6 +171,9 @@ export class Socket {
                 cc.director.emit(Constant.COMMAND_OPERCONNCARD.toString(), body);
                 break;
             case Constant.COMMAND_RECONN:
+                if (cc.director.getScene().name == "Home") {
+                    cc.director.loadScene("netRoom");
+                }
                 cc.director.emit(Constant.COMMAND_RECONN.toString(), body);
                 break;
             case Constant.COMMAND_GMAEEND:
@@ -183,9 +188,11 @@ export class Socket {
             case Constant.COMMAND_PLAYCARD:
                 cc.director.emit(Constant.COMMAND_PLAYCARD.toString(), body);
                 break;
-            case Constant.COMMAND_CONNCARD:
-                cc.director.emit(Constant.COMMAND_CONNCARD.toString(), body);
+            case Constant.COMMAND_TUOGUAN:
+                cc.director.emit(Constant.COMMAND_TUOGUAN.toString(), body);
                 break;
+
+
         }
     }
 
@@ -221,6 +228,10 @@ export class Socket {
 
     LeaveRoom() {
         this.sendMessage(Constant.COMMAND_LEAVEROOM, {});
+    }
+
+    Tuoguan(isTuoguan: boolean) {
+        this.sendMessage(Constant.COMMAND_TUOGUAN, { isTuoguan: isTuoguan });
     }
 }
 
