@@ -23,7 +23,9 @@ export class Loading extends cc.Component {
 
     onLoad() {
         socket.tryConnect();
-        this.goldNumLabel.string = Constant.gold.toString();
+        this.goldNumLabel.string = "3000";
+        //this.goldNumLabel.string = Constant.gold.toString();
+
     }   
 
     onClickDdz() {

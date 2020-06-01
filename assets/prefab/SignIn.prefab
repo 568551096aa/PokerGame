@@ -1705,7 +1705,7 @@
     "_prefab": {
       "__id__": 51
     },
-    "_opacity": 0,
+    "_opacity": 255,
     "_color": {
       "__type__": "cc.Color",
       "r": 230,
@@ -1857,7 +1857,9 @@
     "_enabled": true,
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_spriteFrame": null,
+    "_spriteFrame": {
+      "__uuid__": "b25afba7-a4f1-4766-ac59-633e6de27c42"
+    },
     "_type": 1,
     "_sizeMode": 0,
     "_fillType": 0,
@@ -1972,7 +1974,9 @@
       "b": 120,
       "a": 200
     },
-    "_N$normalSprite": null,
+    "_N$normalSprite": {
+      "__uuid__": "b25afba7-a4f1-4766-ac59-633e6de27c42"
+    },
     "_N$pressedSprite": {
       "__uuid__": "e9ec654c-97a2-4787-9325-e6a10375219a"
     },
@@ -1998,8 +2002,8 @@
     "target": {
       "__id__": 1
     },
-    "component": "signIn",
-    "_componentId": "",
+    "component": "",
+    "_componentId": "c105c6LRIFDVZQEeOYVGZau",
     "handler": "onClickCancel",
     "customEventData": ""
   },
@@ -2025,7 +2029,7 @@
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
     "_spriteFrame": {
-      "__uuid__": "2fba78b4-8559-46f2-979d-1ca811ecc2bb"
+      "__uuid__": "269a1703-2405-4d3d-acb7-f702e2595a66"
     },
     "_type": 0,
     "_sizeMode": 0,

@@ -213,7 +213,8 @@ export class Room extends cc.Component {
         for (var i = 0; i < this.players.length; i++) {
             this.players[i] = new Player();
         }
-        this.goldLabel.string = Constant.gold.toString();
+        //this.goldLabel.string = Constant.gold.toString();
+        this.goldLabel.string = "3000"
 
     }
 
@@ -837,7 +838,7 @@ export class Room extends cc.Component {
         this.players[this.myself].playedPokers = data.playedPokers;
         var idConn = data.isConn;
         var ConnPokers = data.ConnPokers;
-        
+
 
         this.isTuoguan = data.tuoguan;
         this.score = data.score;
