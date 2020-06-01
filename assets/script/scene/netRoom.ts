@@ -213,9 +213,7 @@ export class Room extends cc.Component {
         for (var i = 0; i < this.players.length; i++) {
             this.players[i] = new Player();
         }
-        //this.goldLabel.string = Constant.gold.toString();
-        this.goldLabel.string = "3000"
-
+        this.goldLabel.string = Constant.gold.toString();
     }
 
     initZzh() {

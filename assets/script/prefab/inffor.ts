@@ -1,31 +1,30 @@
-// Learn TypeScript:
-//  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
-//  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/typescript.html
-// Learn Attribute:
-//  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/reference/attributes.html
-//  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/reference/attributes.html
-// Learn life-cycle callbacks:
-//  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
-//  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/life-cycle-callbacks.html
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class NewClass extends cc.Component {
+export class inffor extends cc.Component {
 
     @property(cc.Label)
-    label: cc.Label = null;
+    winLabel: cc.Label = null;
 
-    @property
-    text: string = 'hello';
+    @property(cc.Label)
+    loseLabel: cc.Label = null;
 
-    // LIFE-CYCLE CALLBACKS:
+    clickstate: boolean = false;
 
-    // onLoad () {}
+    init(win: number, lase: number) {
+        this.winLabel.string = win.toString();
+        this.loseLabel.string = lase.toString();
+    }   
 
-    start () {
 
+    onclickQuit() {
+        if (this.clickstate) {
+            return;
+        }
+        this.clickstate = true;
+        this.node.destroy();
+        this.clickstate = false;
     }
 
-    // update (dt) {}
 }

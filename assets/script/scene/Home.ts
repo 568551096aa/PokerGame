@@ -1,10 +1,17 @@
 import { Constant } from "./Constant";
 import { socket } from "../serve/Socket";
+import { inffor } from "../prefab/inffor";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class Loading extends cc.Component {
+
+    @property(cc.Prefab)
+    settingPrefab: cc.Prefab = null;
+
+    @property(cc.Prefab)
+    inforPrefab: cc.Prefab = null;
 
     @property(cc.Button)
     DdzzBut: cc.Button = null;
@@ -23,10 +30,9 @@ export class Loading extends cc.Component {
 
     onLoad() {
         socket.tryConnect();
-        this.goldNumLabel.string = "3000";
-        //this.goldNumLabel.string = Constant.gold.toString();
+        this.goldNumLabel.string = Constant.gold.toString();
 
-    }   
+    }
 
     onClickDdz() {
         if (this.clickstate) {
@@ -43,10 +49,23 @@ export class Loading extends cc.Component {
             return;
         }
         this.clickstate = true;
-        
-        
+        const node = cc.instantiate(this.settingPrefab);
+        this.node.addChild(node);
+
         this.clickstate = false;
     }
+
+    onClickInforBut() {
+        if (this.clickstate) {
+            return;
+        }
+        this.clickstate = true;
+        const node = cc.instantiate(this.inforPrefab);
+        this.node.addChild(node);
+        node.getComponent(inffor).init(1, 1);
+        this.clickstate = false;
+    }
+
 
     onClickQuit() {
         if (this.clickstate) {

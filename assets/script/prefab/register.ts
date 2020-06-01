@@ -40,12 +40,23 @@ export class register extends cc.Component {
             return;
         }
         this.clickstate = true;
-
+        if(this.userEdit.string == "" || this.passEdit.string == ""||this.repassEdit.string == ""){
+            Manager.touastShow("账号密码不能为空", this.node);
+            this.clickstate = false;
+            return ;
+        }
 
         Manager.Show("网络请求中", this.node);
         var user = Number(this.userEdit.string);
         var pass = Number(this.passEdit.string);
         var repass = Number(this.repassEdit.string);
+        if(pass != repass){
+            Manager.touastShow("两次输入密码不一致", this.node);
+            this.clickstate = false;
+            return ;
+        }
+
+
         var res = await Http.httpPost(Constant.URL, JSON.stringify({
             id: Constant.httpRegister,
             uid: user,
@@ -62,7 +73,7 @@ export class register extends cc.Component {
             this.destroy();
         }
         else {
-            Manager.touastShow("其他原因错误", this.node);
+            Manager.touastShow("账号已存在", this.node);
         }
         this.clickstate = false;
     }

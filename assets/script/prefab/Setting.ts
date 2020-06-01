@@ -10,6 +10,13 @@ export  class Setting extends cc.Component {
     @property(cc.Sprite)
     bgmSprite: cc.Sprite = null;
 
+
+    @property(cc.SpriteFrame)
+    openSprifame: cc.SpriteFrame = null;
+
+    @property(cc.SpriteFrame)
+    closeSprifame: cc.SpriteFrame = null;
+
     clickstate: boolean = false;
 
     init(){
@@ -31,6 +38,15 @@ export  class Setting extends cc.Component {
         }
         this.clickstate = true;
 
+        this.clickstate = false;
+    }
+
+    onclickQuit(){
+        if (this.clickstate) {
+            return;
+        }
+        this.clickstate = true;
+        this.node.destroy();
         this.clickstate = false;
     }
 

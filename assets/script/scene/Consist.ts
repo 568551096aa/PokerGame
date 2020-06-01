@@ -29,6 +29,7 @@ export class Manager extends cc.Component {
         this.ToastNode.getComponent(Toast).init(str);;
         this.ToastNode.active = true;
         await this.ToastNode.getComponent(Toast).getDonePromise();
+        console.log("销毁");
         this.ToastNode.destroy();
     }
 
@@ -38,8 +39,9 @@ export class Manager extends cc.Component {
         this.TestNode.getComponent(TextToast).init(str);;
     }
 
-     static  touastHide() {
+    static touastHide() {
         if (this.TestNode != null) {
+            this.TestNode.active = false;
             this.TestNode.destroy();
         }
         this.TestNode = null;

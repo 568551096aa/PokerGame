@@ -6,8 +6,6 @@ export class Http {
             xhr.timeout = 5000;
 
             xhr.open("POST", url, true);
-            xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
 
             xhr.send(params);
 
