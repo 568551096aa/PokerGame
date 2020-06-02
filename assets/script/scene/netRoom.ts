@@ -64,8 +64,8 @@ export class Room extends cc.Component {
     @property(cc.SpriteFrame)
     boosSpriteframe: cc.SpriteFrame = null;
 
-    @property(cc.Label)
-    TuoguanLeble: cc.Label = null;
+    @property(cc.Node)
+    TuoguanNode: cc.Node = null;
 
     @property(cc.SpriteFrame)
     frameSpriteframe: cc.SpriteFrame = null;
@@ -221,9 +221,15 @@ export class Room extends cc.Component {
     }
 
     restart() {
+
+        this.tuoguanNode.active = false;
+        this.TuoguanNode.active = false;
+
         this.state = Constant.ready;
         this.readyBtn.active = true;
         this.timerNode.getComponent(Timer).timerStop();
+
+
         for (var i = 0; i < Constant.PokerNum; i++) {
             this.allPoker[i].setPosition(0, 0);
             this.allPoker[i].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[54];
@@ -257,11 +263,16 @@ export class Room extends cc.Component {
 
     startGame(data) {
         this.myself = Constant.id;
+        this.score = 1;
+        this.setScore(this.score.toString());
         console.log("myself", this.myself);
         //数据同步
         this.loding.node.active = false;
         this.players[this.myself].pokers = data.pokers;
         this.firstPlayerId = data.firstPlayerId;
+
+        //托管按钮希纳是
+        this.tuoguanBut.active = true;
 
         var pokerBite = new Array(54);
         var i = 0;
@@ -560,7 +571,7 @@ export class Room extends cc.Component {
         var id = data.id;
         this.bossId = data.bossId;
         this.state = Constant.selectBoss;
-        var score = data.score;
+
         if (id == this.myself) {
             //出牌显示 设置20s的定时器 如果手动选择则调main 否则在定时器的回调里main  如果首位玩家已经叫了地主后又到了这位玩家
             //继续抢地主则为最终地主 否则最先抢地主的玩家是地主
@@ -581,8 +592,8 @@ export class Room extends cc.Component {
         }
     }
 
-    setScore(score) {
-        this.scoreLabel.string = score.toString() + "倍";
+    setScore(score: string) {
+        this.scoreLabel.string = score + "倍";
     }
 
     //主动地主操作
@@ -595,6 +606,9 @@ export class Room extends cc.Component {
         var id = data.id;
         var isBoss = data.isBoss;
         var textType = data.textType;
+        this.selectBossNode.active = false;
+        this.score = data.score;
+        this.setScore(this.score.toString());
         if (id == this.myself) {
             this.roundAnim(id, textType)
         }
@@ -623,12 +637,10 @@ export class Room extends cc.Component {
     //出牌
     playCard(data) {
         var id = data.id;
-        this.beforplayCard(id);
 
+
+        this.beforplayCard(id);
         if (id == this.myself) {
-            if (this.isTuoguan) {
-                return;
-            }
             this.clickIsSelect = true;
             var midPos = [-180, -220 + 150];
             this.timerNode.getComponent(Timer).timerStart(midPos);
@@ -651,6 +663,7 @@ export class Room extends cc.Component {
 
     //主动出牌操作
     playCardComm() {
+        this.playCardNode.active = false;
         var nums = new Array();
         var i = 0;
         for (i = 0; i < this.players[this.myself].pokers.length; i++) {
@@ -670,7 +683,8 @@ export class Room extends cc.Component {
         var id = data.id;
         var isPlay = data.isPlay;
         var num = data.pokers;
-        var score = data.score;
+        this.score = data.score;
+        this.setScore(this.score.toString());
         if (data.pokers == null) {
             num = new Array();
         }
@@ -702,7 +716,7 @@ export class Room extends cc.Component {
 
 
 
-    //自动出牌
+    //自动接牌
     connCardCalbak(data) {
         var id = data.id;
         var isPlay = data.isPlay;
@@ -714,6 +728,9 @@ export class Room extends cc.Component {
         else {
             num.sort(this.compareAsc);
         }
+        this.score = data.score;
+        this.setScore(this.score.toString());
+
 
         this.players[id].lastPokers = num;
         this.players[id].validPokerNum -= num.length;
@@ -781,18 +798,18 @@ export class Room extends cc.Component {
 
     //接牌
     connCard(data) {
+        console.log("接牌");
+
         var id = data.id;
         if (this.players[id].lastPokers != null) {
             for (var i = 0; i < this.players[id].lastPokers.length; i++) {
                 this.allPoker[this.players[id].lastPokers[i]].active = false;
             }
         }
+
         this.state = Constant.connCard;
 
         if (id == this.myself) {
-            if (this.isTuoguan) {
-                return;
-            }
             this.clickIsSelect = true;
             var midPos = [-180, -220 + 150];
             this.timerNode.getComponent(Timer).timerStart(midPos);
@@ -825,6 +842,7 @@ export class Room extends cc.Component {
             }
         }
 
+
         socket.connCard(this.myself, nums);
     }
 
@@ -841,14 +859,15 @@ export class Room extends cc.Component {
         this.isTuoguan = data.tuoguan;
         this.score = data.score;
         if (this.isTuoguan) {
-            this.TuoguanLeble.node.active = true;
+            this.TuoguanNode.active = true;
             this.clickstate = Constant.ClickMoveing;
         }
         else {
-            this.TuoguanLeble.node.active = false;
+            this.TuoguanNode.active = false;
             this.clickstate = Constant.ClickNothing;
         }
-        this.setScore(this.score);
+        this.score = data.score;
+        this.setScore(this.score.toString());
         this.initPoker();
         if (id == this.myself) {
             var midPos = [-180, -220 + 150];
@@ -867,16 +886,28 @@ export class Room extends cc.Component {
     tuoguancall(body) {
         var id = body.id;
         var tuoguan = body.tuoguan;
-        this.isTuoguan = tuoguan;
+        if (id == this.myself) {
+            this.isTuoguan = tuoguan;
+            if (this.isTuoguan) {
+                this.TuoguanNode.active = true;
+                this.TuoguanNode.zIndex = 10;
+                this.tuoguanBut.active = false;
+                this.clickstate = Constant.ClickMoveing;
+            }
+            else {
+                this.TuoguanNode.active = false;
+                this.tuoguanBut.active = true;
+                this.clickstate = Constant.ClickNothing;
+            }
+        }
+        else if (id == (this.myself + 1) % 3) {
 
-        if (this.isTuoguan) {
-            this.TuoguanLeble.node.active = true;
-            this.clickstate = Constant.ClickMoveing;
         }
-        else {
-            this.TuoguanLeble.node.active = false;
-            this.clickstate = Constant.ClickNothing;
-        }
+        else[
+
+        ]
+
+
     }
 
     setBoss(data) {
@@ -1048,13 +1079,21 @@ export class Room extends cc.Component {
         var winer = data.winer;
         var gold = data.gold;
         Constant.gold = gold;
+        this.setGolad(gold);
         var type = 1;
         if (this.bossId == winer) {
             type = 0;
         }
+        this.winNode.zIndex = 11;
         this.winNode.getComponent(win).init(this, type);
         this.winNode.active = true;
+
         this.clickstate = Constant.ClickStart;
+        this.restart();
+    }
+
+    setGolad(num: number) {
+        this.goldLabel.string = num.toString();
     }
 
     initPoker() {
@@ -1083,7 +1122,7 @@ export class Room extends cc.Component {
         this.clickstate = Constant.ClickStart;
 
         socket.ready();
-        this.tuoguanBut.active = true;
+
         this.readyBtn.active = false;
         this.loding.node.active = true;
         this.clickstate = Constant.ClickNothing;
@@ -1103,18 +1142,9 @@ export class Room extends cc.Component {
             return;
         }
         this.clickstate = Constant.ClickStart;
-        this.isTuoguan = !this.isTuoguan;
 
+        socket.Tuoguan(this.myself, !this.isTuoguan);
 
-        if (this.isTuoguan) {
-            this.TuoguanLeble.node.active = true;
-            this.clickstate = Constant.ClickMoveing;
-        }
-        else {
-            this.TuoguanLeble.node.active = false;
-            this.clickstate = Constant.ClickNothing;
-        }
-        socket.Tuoguan(this.isTuoguan);
         this.clickstate = Constant.ClickNothing;
     }
 

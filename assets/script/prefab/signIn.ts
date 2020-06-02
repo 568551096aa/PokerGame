@@ -34,13 +34,13 @@ export class signIn extends cc.Component {
         if (this.clickstate) {
             return;
         }
-  
+
         this.clickstate = true;
 
-        if(this.userEdit.string == "" || this.passEdit.string == ""){
+        if (this.userEdit.string == "" || this.passEdit.string == "") {
             Manager.touastShow("账号密码不能为空", this.node);
             this.clickstate = false;
-            return ;
+            return;
         }
         var user = Number(this.userEdit.string);
         var pass = Number(this.passEdit.string);
@@ -52,16 +52,17 @@ export class signIn extends cc.Component {
             sid: pass
         }));
         if (res == null) {
-            Manager.touastShow("失败", this.node);
+            await Manager.touastShow("失败", this.node);
         }
         else if (res.res == 1) {
             Constant.uid = user;
             Constant.gold = res.gold;
-            Manager.touastShow("成功", this.node);
+            await Manager.touastShow("成功", this.node);
+
             cc.director.loadScene("Home");
         }
         else {
-            Manager.touastShow("账号或密码错误", this.node);
+            await Manager.touastShow("账号或密码错误", this.node);
         }
         Manager.touastHide();
         this.clickstate = false;

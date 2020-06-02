@@ -35,9 +35,18 @@ export class PlayCards extends cc.Component {
     }
 
     onClickNonPlay() {
+        if (this.game.clickstate == Constant.ClickStart) {
+            return;
+        }
+
+
+
         if (this.clickstate) {
             return;
         }
+
+
+        this.game.clickstate = Constant.ClickStart;
         this.clickstate = true;
         this.node.active = false;
         if (Constant.isLxDdz()) {
@@ -52,21 +61,44 @@ export class PlayCards extends cc.Component {
             }
 
         }
+
+
+        this.game.clickstate = Constant.ClickNothing;
         this.clickstate = false;
     }
 
     onClickTip() {
+        if (this.game.clickstate == Constant.ClickStart) {
+            return;
+        }
+        this.game.clickstate = Constant.ClickStart;
+
+
         if (this.clickstate) {
             return;
         }
         this.clickstate = true;
+        
+        
+        
+        this.game.clickstate = Constant.ClickNothing;
         this.clickstate = false;
     }
 
     onClickPlay() {
+        if (this.game.clickstate == Constant.ClickStart) {
+            return;
+        }
+
+
         if (this.clickstate) {
             return;
         }
+
+
+
+        this.game.clickstate = Constant.ClickStart;
+
         this.clickstate = true;
         this.node.active = false;
 
@@ -81,6 +113,10 @@ export class PlayCards extends cc.Component {
                 this.game.connCardComm();
             }
         }
+
+
+
+        this.game.clickstate = Constant.ClickNothing;
         this.clickstate = false;
     }
 }

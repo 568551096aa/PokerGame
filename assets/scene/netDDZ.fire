@@ -41,8 +41,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.3984375,
-      "y": 0.3984375,
+      "x": 0.39375,
+      "y": 0.39375,
       "z": 1
     },
     "_quat": {
@@ -1650,8 +1650,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
-      "height": 40
+      "width": 500,
+      "height": 300
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1858,29 +1858,14 @@
     "customEventData": ""
   },
   {
-    "__type__": "cc.Label",
+    "__type__": "cc.BlockInputEvents",
     "_name": "",
     "_objFlags": 0,
     "node": {
       "__id__": 35
     },
     "_enabled": true,
-    "_useOriginalSize": false,
-    "_string": "托管中",
-    "_N$string": "托管中",
-    "_fontSize": 40,
-    "_lineHeight": 40,
-    "_enableWrapText": true,
-    "_N$file": null,
-    "_isSystemFontUsed": true,
-    "_spacingX": 0,
-    "_batchAsBitmap": false,
-    "_N$horizontalAlign": 1,
-    "_N$verticalAlign": 1,
-    "_N$fontFamily": "Arial",
-    "_N$overflow": 0,
-    "_N$cacheMode": 0,
-    "_id": "07l9H4GnFLuLYJTe3TqdxF"
+    "_id": "8c5E++hCZCyZbfFR1NJKU7"
   },
   {
     "__type__": "cc.Node",
@@ -2517,7 +2502,7 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 0,
+      "x": 47,
       "y": 0,
       "z": 0
     },
@@ -3202,7 +3187,7 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": -247,
+      "x": 377,
       "y": -284,
       "z": 0
     },
@@ -3515,8 +3500,8 @@
     "boosSpriteframe": {
       "__uuid__": "65664157-bfcf-4720-b472-dc3750a659c9"
     },
-    "TuoguanLeble": {
-      "__id__": 40
+    "TuoguanNode": {
+      "__id__": 35
     },
     "frameSpriteframe": {
       "__uuid__": "92671126-ce40-419c-832a-22ee1de5b803"

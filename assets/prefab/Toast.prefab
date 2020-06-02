@@ -46,8 +46,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 400,
-      "height": 300
+      "width": 600,
+      "height": 500
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -77,7 +77,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": ""
   },
@@ -147,7 +146,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": ""
   },
@@ -210,7 +208,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": ""
   },
@@ -222,8 +219,6 @@
       "__id__": 3
     },
     "_enabled": true,
-    "_srcBlendFactor": 1,
-    "_dstBlendFactor": 771,
     "_useOriginalSize": false,
     "_string": "提示内容",
     "_N$string": "提示内容",
@@ -233,11 +228,13 @@
     "_N$file": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
+    "_batchAsBitmap": false,
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
     "_N$overflow": 0,
-    "_id": "44F5uP4rVEdbG6pLN3JJJe"
+    "_N$cacheMode": 0,
+    "_id": ""
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -313,7 +310,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": ""
   },
@@ -379,7 +375,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": ""
   },
@@ -409,7 +404,7 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
-    "_id": "83U/8NkxFK96Rm1yUSHh6p"
+    "_id": ""
   },
   {
     "__type__": "cc.Widget",
@@ -436,7 +431,7 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 100,
     "_originalHeight": 40,
-    "_id": "02bMI5nbZNwIGNUWc3t+B0"
+    "_id": ""
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -457,21 +452,6 @@
       "__id__": 6
     },
     "_enabled": true,
-    "transition": 3,
-    "pressedColor": {
-      "__type__": "cc.Color",
-      "r": 200,
-      "g": 200,
-      "b": 200,
-      "a": 255
-    },
-    "hoverColor": {
-      "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
-      "a": 255
-    },
     "duration": 0.1,
     "zoomScale": 1.2,
     "clickEvents": [
@@ -481,11 +461,41 @@
     ],
     "_N$interactable": true,
     "_N$enableAutoGrayEffect": false,
+    "_N$transition": 3,
+    "transition": 3,
     "_N$normalColor": {
       "__type__": "cc.Color",
       "r": 230,
       "g": 230,
       "b": 230,
+      "a": 255
+    },
+    "_N$pressedColor": {
+      "__type__": "cc.Color",
+      "r": 200,
+      "g": 200,
+      "b": 200,
+      "a": 255
+    },
+    "pressedColor": {
+      "__type__": "cc.Color",
+      "r": 200,
+      "g": 200,
+      "b": 200,
+      "a": 255
+    },
+    "_N$hoverColor": {
+      "__type__": "cc.Color",
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 255
+    },
+    "hoverColor": {
+      "__type__": "cc.Color",
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_N$disabledColor": {
@@ -516,7 +526,7 @@
     "_N$target": {
       "__id__": 7
     },
-    "_id": "01Wi8haJBKsIRXix1GYoSv"
+    "_id": ""
   },
   {
     "__type__": "cc.ClickEvent",
@@ -524,6 +534,7 @@
       "__id__": 1
     },
     "component": "Toast",
+    "_componentId": "",
     "handler": "onClickClose",
     "customEventData": ""
   },
@@ -564,7 +575,7 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
-    "_id": "7ek26li8RGo4tQuk5GD8BJ"
+    "_id": ""
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -588,10 +599,10 @@
     "alignMode": 1,
     "_target": null,
     "_alignFlags": 45,
-    "_left": 280,
-    "_right": 280,
-    "_top": 170,
-    "_bottom": 170,
+    "_left": 180,
+    "_right": 180,
+    "_top": 70,
+    "_bottom": 70,
     "_verticalCenter": 0,
     "_horizontalCenter": 0,
     "_isAbsLeft": true,
@@ -602,7 +613,7 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 0,
     "_originalHeight": 0,
-    "_id": "995/a+G0dEWYfVf5S+LgJt"
+    "_id": ""
   },
   {
     "__type__": "cc.BlockInputEvents",
@@ -612,7 +623,7 @@
       "__id__": 1
     },
     "_enabled": true,
-    "_id": "ff9HH+ezBAe7kpUZ26znZd"
+    "_id": ""
   },
   {
     "__type__": "400dcrG/A9B7p4gk/C5JwyN",
@@ -628,7 +639,7 @@
     "closeBut": {
       "__id__": 6
     },
-    "_id": "3aXmBZMshPHrmf4ywCijMz"
+    "_id": ""
   },
   {
     "__type__": "cc.PrefabInfo",

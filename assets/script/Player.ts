@@ -11,6 +11,8 @@ export class Player {
     playedPokers: boolean[] = null;//记录已经出的手牌
     isBoss: boolean = false;
     textType: number = 0;
+    istuoguan:boolean = false;
+
     init(pokers: number[]) {
         this.validPokerNum = 17;
         this.pokers = new Array(this.validPokerNum);

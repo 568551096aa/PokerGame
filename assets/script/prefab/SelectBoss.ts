@@ -40,9 +40,17 @@ export class SelectBoss extends cc.Component {
     }
 
     onClickSelect() {
+        if (this.game.clickstate == Constant.ClickStart) {
+            return;
+        }
+      
+
         if (this.clickstate) {
             return;
         }
+
+
+        this.game.clickstate = Constant.ClickStart;
         this.clickstate = true;
         this.node.active = false;
 
@@ -54,14 +62,20 @@ export class SelectBoss extends cc.Component {
         }
 
 
-
+        this.game.clickstate = Constant.ClickNothing;
         this.clickstate = false;
     }
 
     onClickGiveup() {
+        if (this.game.clickstate == Constant.ClickStart) {
+            return;
+        }
         if (this.clickstate) {
             return;
         }
+
+
+        this.game.clickstate = Constant.ClickStart;
         this.clickstate = true;
         this.node.active = false;
         if (Constant.isLxDdz()) {
@@ -70,6 +84,8 @@ export class SelectBoss extends cc.Component {
         else {
             this.game.selectBossComm(this.game.myself, false);
         }
+
+        this.game.clickstate = Constant.ClickNothing;
         this.clickstate = false;
     }
 

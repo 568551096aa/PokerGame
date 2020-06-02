@@ -188,6 +188,9 @@ export class Socket {
             case Constant.COMMAND_PLAYCARD:
                 cc.director.emit(Constant.COMMAND_PLAYCARD.toString(), body);
                 break;
+            case Constant.COMMAND_CONNCARD:
+                cc.director.emit(Constant.COMMAND_CONNCARD.toString(), body);
+                break;
             case Constant.COMMAND_TUOGUAN:
                 cc.director.emit(Constant.COMMAND_TUOGUAN.toString(), body);
                 break;
@@ -230,8 +233,8 @@ export class Socket {
         this.sendMessage(Constant.COMMAND_LEAVEROOM, {});
     }
 
-    Tuoguan(isTuoguan: boolean) {
-        this.sendMessage(Constant.COMMAND_TUOGUAN, { isTuoguan: isTuoguan });
+    Tuoguan(id: number, isTuoguan: boolean) {
+        this.sendMessage(Constant.COMMAND_TUOGUAN, { id: id, isTuoguan: isTuoguan });
     }
 }
 

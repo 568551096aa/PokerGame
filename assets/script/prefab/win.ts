@@ -12,10 +12,10 @@ export class win extends cc.Component {
     init(game, type) {
         this.game = game;
         if (type == 0) {
-            this.text.string = "地主获胜\n地主 +10000金币\n农民 - 10000金币";
+            this.text.string = "地主获胜\n地主 +" + this.game.score * 300 * 2 + "金币\n农民 - " + this.game.score * 300 + "金币";
         }
         else {
-            this.text.string = "农民获胜\n农民 +10000金币\n地主 - 10000金币";
+            this.text.string = "农民获胜\n农民 +" + this.game.score * 300 + "金币\n地主 -" + this.game.score * 300 + "金币";
         }
     }
 
