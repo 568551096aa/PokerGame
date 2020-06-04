@@ -2,30 +2,64 @@ import { Toast } from "../prefab/Toast";
 import { commonPrefab } from "./commonPrefab";
 import { TextToast } from "../prefab/TextToast";
 import { SyncPromise } from "../serve/SyncPromise";
+import { AudioManage } from "./AudioManage";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class Manager extends cc.Component {
 
-    static AudioSetting = false;
 
+    static BgmSetting = true;
 
+    static EffectSetting = true;
 
     static ToastNode: cc.Node = null;
 
     static TestNode: cc.Node = null;
-    static setup() {
 
+
+    static playBgmAudio() {
+        if (this.BgmSetting) {
+            console.log("背景");
+            cc.director.getScene().getChildByName('Consist').getComponent(AudioManage).playBgmAudio();
+        }
+    }
+
+    static playGameBgmAudio() {
+        if (this.BgmSetting) {
+            cc.director.getScene().getChildByName('Consist').getComponent(AudioManage).playGameBgmAudio();
+        }
+    }
+
+    static pauseBgmAudio() {
+        cc.director.getScene().getChildByName('Consist').getComponent(AudioManage).pauseBgmAudio();
+    }
+
+    static pauseGameBgmAudio() {
+        cc.director.getScene().getChildByName('Consist').getComponent(AudioManage).pauseGameBgmAudio();
+    }
+
+    static playStartBtnAudio() {
+        if (this.EffectSetting) {
+            cc.director.getScene().getChildByName('Consist').getComponent(AudioManage).playStartBtnAudio();
+        }
     }
 
 
-    static playAudil() {
-
-        //cc.audioEngine.playEffect(this.eatWreckAudioClip, false);
+    static playselectBossAudio() {
+        if (this.EffectSetting) {
+            cc.director.getScene().getChildByName('Consist').getComponent(AudioManage).playselectBossAudio();
+        }
     }
 
-    static async touastShow(str: string, node: cc.Node) : Promise<any> {
-        var pro =  new SyncPromise();
+    static playnotSelectBossAudio() {
+        if (this.EffectSetting) {
+            cc.director.getScene().getChildByName('Consist').getComponent(AudioManage).playnotSelectBossAudio();
+        }
+    }
+
+    static async touastShow(str: string, node: cc.Node): Promise<any> {
+        var pro = new SyncPromise();
         this.ToastNode = cc.instantiate(cc.director.getScene().getChildByName('Consist').getComponent(commonPrefab).commonTouast);
         node.addChild(this.ToastNode);
         this.ToastNode.getComponent(Toast).init(str);
@@ -48,4 +82,8 @@ export class Manager extends cc.Component {
         }
         this.TestNode = null;
     }
+
+
+
+
 }

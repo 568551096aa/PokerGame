@@ -16,8 +16,7 @@ export class inffor extends cc.Component {
         this.winLabel.string = win.toString();
         this.loseLabel.string = lase.toString();
     }   
-
-
+    
     onclickQuit() {
         if (this.clickstate) {
             return;
@@ -26,5 +25,4 @@ export class inffor extends cc.Component {
         this.node.destroy();
         this.clickstate = false;
     }
-
 }

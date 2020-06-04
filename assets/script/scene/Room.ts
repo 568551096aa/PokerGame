@@ -4,6 +4,7 @@ import { SelectBoss } from "../prefab/SelectBoss";
 import { AiPlayer } from "../AiPlayer";
 import { PlayCards } from "../prefab/PlayCards";
 import { Timer } from "../prefab/Timer";
+import { Manager } from "./Consist";
 
 const { ccclass, property } = cc._decorator;
 
@@ -72,6 +73,7 @@ export class Room extends cc.Component {
     pos: cc.Vec2[] = null;
 
     onLoad() {
+        Manager.playGameBgmAudio();
         Constant.gameMode = Constant.LxDdzMode;
         for (var i = 0; i < Constant.PokerNum; i++) {
             var node = new cc.Node();
@@ -1245,6 +1247,7 @@ export class Room extends cc.Component {
         this.clickstate = Constant.ClickStart;
         this.readyBtn.active = false;
         this.game.startGame();
+        Manager.playStartBtnAudio();
         this.clickstate = Constant.ClickNothing;
     }
 

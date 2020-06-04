@@ -59,7 +59,7 @@ export class Constant {
 
 
     static COMMAND_BIND = 15;//绑定用户信息
-    static COMMAND_TUOGUAN= 16;//托管
+    static COMMAND_TUOGUAN = 16;//托管
 
 
     static COMMAND_RECOVER_GAME = "receive_game";//重启游戏
@@ -96,10 +96,11 @@ export class Constant {
     static httpMinusold = 2;
     static httpSignIn = 3;
     static httpRegister = 4;
-
-
+    static infor = 5;
 
     static uid = 0;
     static gold = 0;
     static id = 0;
+
+    static isReconn = false;
 }

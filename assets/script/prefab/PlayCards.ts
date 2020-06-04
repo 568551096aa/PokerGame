@@ -20,6 +20,7 @@ export class PlayCards extends cc.Component {
     game: any = null;
     init(game: any) {
         this.game = game;
+        this.game.isplay = false;
         //自己为出牌人 不能不出牌
         if (this.game.state == Constant.playCard) {
             this.NonPlayCardsBut.interactable = false;

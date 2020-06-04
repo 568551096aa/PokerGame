@@ -112,8 +112,10 @@ export class Room extends cc.Component {
     isPlay: boolean = false;
     isTuoguan: boolean = false;
     score: number = 1;
-
+    isplay: boolean = false;
     onLoad() {
+        Manager.playGameBgmAudio();
+
         for (var i = 0; i < Constant.PokerNum; i++) {
             var node = new cc.Node();
             //调用新建的node的addComponent函数，会返回一个sprite的对象
@@ -138,6 +140,7 @@ export class Room extends cc.Component {
             cc.director.on(Constant.COMMAND_OPESELECTBOSS.toString(), this.selectBossCalbak, this);
             cc.director.on(Constant.COMMAND_OPERPLAYCARD.toString(), this.playCardCalbak, this);
             cc.director.on(Constant.COMMAND_OPERCONNCARD.toString(), this.connCardCalbak, this);
+            console.log("绑定");
             cc.director.on(Constant.COMMAND_RECONN.toString(), this.reconnect, this);
             cc.director.on(Constant.COMMAND_GMAEEND.toString(), this.GAMEOVER, this);
             cc.director.on(Constant.COMMAND_SETBOSS.toString(), this.setBoss, this);
@@ -152,6 +155,7 @@ export class Room extends cc.Component {
 
         }
         this.init();
+
     }
 
     init() {
@@ -177,7 +181,7 @@ export class Room extends cc.Component {
 
 
         this.pos = new Array(3);
-        var pos = [[0, -220 + 180], [250 - 50, 150], [-250 + 50, 150]];
+        var pos = [[0, -220 + 180], [250 - 50, 100], [-250 + 50, 100]];
 
         for (var i = 0; i < 3; i++) {
             this.pos[i] = new cc.Vec2(pos[i][0], pos[i][1]);
@@ -262,6 +266,7 @@ export class Room extends cc.Component {
     }
 
     startGame(data) {
+        Manager.playStartBtnAudio();
         this.myself = Constant.id;
         this.score = 1;
         this.setScore(this.score.toString());
@@ -364,8 +369,6 @@ export class Room extends cc.Component {
             this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = false;
             this.clickstate = Constant.ClickNothing;
         }
-
-
     }
 
     touchMove(event: cc.Event.EventTouch) {
@@ -486,17 +489,21 @@ export class Room extends cc.Component {
                 }
                 var type = this.getPokerTypeAndLevel(nums);
                 if (type[0] == -1) {
+                    this.isplay = false;
                     this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = false;
                 }
                 else {
                     if (this.state == Constant.playCard) {
+                        this.isplay = true;
                         this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = true;
                     }
                     else if (this.state == Constant.connCard) {
                         if (this.compTypeAndSize(this.lastTypeAndSize, type)) {
+                            this.isplay = true;
                             this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = true;
                         }
                         else {
+                            this.isplay = false;
                             this.playCardNode.getComponent(PlayCards).PlayCardsBut.interactable = false;
                         }
                     }
@@ -666,13 +673,15 @@ export class Room extends cc.Component {
         this.playCardNode.active = false;
         var nums = new Array();
         var i = 0;
-        for (i = 0; i < this.players[this.myself].pokers.length; i++) {
-            if (this.players[this.myself].playedPokers[i]) {
-                continue;
-            }
-            if (this.isSelect[i]) {
-                this.players[this.myself].playedPokers[i] = true;
-                nums.push(this.players[this.myself].pokers[i]);
+        if (this.isplay) {
+            for (i = 0; i < this.players[this.myself].pokers.length; i++) {
+                if (this.players[this.myself].playedPokers[i]) {
+                    continue;
+                }
+                if (this.isSelect[i]) {
+                    this.players[this.myself].playedPokers[i] = true;
+                    nums.push(this.players[this.myself].pokers[i]);
+                }
             }
         }
         socket.playCard(this.myself, nums);
@@ -831,56 +840,151 @@ export class Room extends cc.Component {
     connCardComm() {
         var nums = new Array();
         var i = 0;
-
-        for (i = 0; i < this.players[this.myself].pokers.length; i++) {
-            if (this.players[this.myself].playedPokers[i]) {
-                continue;
-            }
-            if (this.isSelect[i]) {
-                this.players[this.myself].playedPokers[i] = true;
-                nums.push(this.players[this.myself].pokers[i]);
+        if (this.isplay) {
+            for (i = 0; i < this.players[this.myself].pokers.length; i++) {
+                if (this.players[this.myself].playedPokers[i]) {
+                    continue;
+                }
+                if (this.isSelect[i]) {
+                    this.players[this.myself].playedPokers[i] = true;
+                    nums.push(this.players[this.myself].pokers[i]);
+                }
             }
         }
-
-
         socket.connCard(this.myself, nums);
     }
 
     reconnect(data) {
-        var id = data.id;
+        console.log("重连");
         this.state = data.state;
-        this.myself = data.muself;
+        this.myself = data.id;
+        this.firstPlayerId = data.firstPlayerId;
+
         this.players[this.myself].pokers = data.pokers;
         this.players[this.myself].playedPokers = data.playedPokers;
-        var idConn = data.isConn;
-        var ConnPokers = data.ConnPokers;
-
-
+        this.players[this.myself].validPokerNum = data.validPokerNum;
+        this.bossId = data.bossid;
         this.isTuoguan = data.tuoguan;
         this.score = data.score;
+        this.readyBtn.active = false;
+        this.host = data.host;
+        var curid = data.curId;
+        var idConn = data.isConn;
+        var oneNum: number = data.oneNum;
+        var twoNum: number = data.twoNum;
+        var onePokersNum = data.onePokers;
+        var twoPokersNum = data.twoPokers;
+
         if (this.isTuoguan) {
             this.TuoguanNode.active = true;
+            this.TuoguanNode.zIndex = 10;
+            this.tuoguanBut.active = false;
             this.clickstate = Constant.ClickMoveing;
         }
         else {
-            this.TuoguanNode.active = false;
-            this.clickstate = Constant.ClickNothing;
+            socket.Tuoguan(this.myself, true);
         }
-        this.score = data.score;
+
+
         this.setScore(this.score.toString());
-        this.initPoker();
-        if (id == this.myself) {
+        this.midPoker.active = true;
+
+        var pokerBite = new Array(54);
+        var i = 0;
+        for (i = 0; i < this.players[this.myself].pokers.length; i++) {
+            pokerBite[this.players[this.myself].pokers[i]] = true;
+        }
+
+        this.players[(this.myself + 1) % 3].pokers = new Array(onePokersNum);
+        this.players[(this.myself + 2) % 3].pokers = new Array(twoPokersNum);
+
+        var j = 0, k = (this.myself + 1) % 3;
+        for (i = 0; i < 54; i++) {
+            if (j == this.players[k].pokers.length) {
+                j = 0;
+                k = (k + 1) % 3;
+            }
+            if (pokerBite[i]) {
+                continue;
+            }
+            if (k == this.myself) {
+                if (pokerBite[i]) {
+                    continue;
+                }
+                this.host[j] = i;
+                j++;
+                continue;
+            }
+            this.players[k].pokers[j] = i;
+            j++;
+        }
+
+        this.mypokerPos = this.players[this.myself].pokers;
+
+
+        this.players[this.myself].sortPokers();
+        var leftPos = [-350, 0];
+        var midPos = [this.pokerLeft + Constant.PokerWidth / 2, -220];
+        var rightPos = [350, 0];
+        for (var i = 0; i < this.players[this.myself].pokers.length; i++) {
+            this.allPoker[this.players[this.myself].pokers[i]].zIndex = i;
+            this.allPoker[this.players[this.myself].pokers[i]].getComponent(cc.Sprite).spriteFrame = this.pokerSpriteFrame[this.players[this.myself].pokers[i]];
+        }
+
+        for (var i = 0; i < this.players[(this.myself + 1) % 3].pokers.length; i++) {
+            this.allPoker[this.players[(this.myself + 1) % 3].pokers[i]].setPosition(rightPos[0], rightPos[1]);
+        }
+        for (var i = 0; i < this.players[(this.myself + 2) % 3].pokers.length; i++) {
+            this.allPoker[this.players[(this.myself + 2) % 3].pokers[i]].setPosition(leftPos[0], leftPos[1]);
+        }
+
+
+        var newLefet = -1 * Math.floor((this.players[this.myself].validPokerNum * Constant.PokerWidth / 5 + Constant.PokerWidth / 4) / 2);//初始化手牌边界
+        this.pokerLeft = newLefet;
+        var midPos = [this.pokerLeft + Constant.PokerWidth / 2, -220];
+        for (var i = 0; i < this.players[this.myself].pokers.length; i++) {
+            if (this.players[this.myself].playedPokers[i]) {
+                this.allPoker[this.players[this.myself].pokers[i]].active = false;
+                continue;
+            }
+            this.allPoker[this.players[this.myself].pokers[i]].color = cc.color(255, 255, 255);
+            this.allPoker[this.players[this.myself].pokers[i]].setPosition(midPos[0], midPos[1]);
+            midPos[0] += Constant.PokerWidth / 5;
+        }
+        for (var i = 0; i < this.isSelect.length; i++) {
+            this.isSelect[i] = false;
+        }
+
+        var pokersNum = this.players[this.myself].pokers.length + this.players[(this.myself + 1) % 3].pokers.length + this.players[(this.myself + 2) % 3].pokers.length;
+
+        if (pokersNum != 54) {
+            //设置地主拍
+            for (var i = 0; i < 3; i++) {
+                var pos = [[-120, 230], [0, 230], [120, 230]];
+                this.allPoker[this.host[i]].setPosition(pos[i][0], pos[i][1]);
+            }
+        }
+
+        if (this.bossId != -1) {
+            this.playerAve[this.bossId].spriteFrame = this.boosSpriteframe;
+        }
+
+        if (curid == this.myself) {
+            this.clickIsSelect = true;
             var midPos = [-180, -220 + 150];
             this.timerNode.getComponent(Timer).timerStart(midPos);
             this.playCardNode.active = true;
             this.playCardNode.getComponent(PlayCards).init(this);
         }
-        else {
-            for (var i = 0; i < idConn.length; i++) {
-                this.players[idConn[i]].lastPokers = ConnPokers[i];
-                this.play(idConn[i]);
-            }
-        }
+
+        this.pokerNum[1].node.setPosition(350, -100);
+        this.pokerNum[1].string = oneNum.toString();
+        this.pokerNum[1].node.active = true;
+        this.pokerNum[2].node.setPosition(-350, -100);
+        this.pokerNum[2].string = twoNum.toString();
+        this.pokerNum[2].node.active = true;
+        this.tuoguanBut.active = false;
+        this.TuoguanNode.active = true;
     }
 
     tuoguancall(body) {
@@ -903,10 +1007,9 @@ export class Room extends cc.Component {
         else if (id == (this.myself + 1) % 3) {
 
         }
-        else[
+        else {
 
-        ]
-
+        }
 
     }
 
@@ -1017,9 +1120,11 @@ export class Room extends cc.Component {
         var text: string;
         switch (type) {
             case 0:
+                Manager.playnotSelectBossAudio();
                 text = "不叫";
                 break;
             case 1:
+                Manager.playselectBossAudio();
                 text = "叫地主";
                 break;
             case 2:
@@ -1089,7 +1194,10 @@ export class Room extends cc.Component {
         this.winNode.active = true;
 
         this.clickstate = Constant.ClickStart;
-        this.restart();
+    }
+
+    tip() {
+
     }
 
     setGolad(num: number) {
@@ -1133,7 +1241,7 @@ export class Room extends cc.Component {
             return;
         }
         this.clickstate = Constant.ClickStart;
-        this.onDestroy();
+        socket.LeaveRoom(this.myself);
         cc.director.loadScene("Home");
     }
 

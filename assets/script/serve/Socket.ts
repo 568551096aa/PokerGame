@@ -171,10 +171,11 @@ export class Socket {
                 cc.director.emit(Constant.COMMAND_OPERCONNCARD.toString(), body);
                 break;
             case Constant.COMMAND_RECONN:
-                if (cc.director.getScene().name == "Home") {
-                    cc.director.loadScene("netRoom");
-                }
-                cc.director.emit(Constant.COMMAND_RECONN.toString(), body);
+                setTimeout(() => {
+                    console.log("重连回调");
+                    cc.director.emit(Constant.COMMAND_RECONN.toString(), body);
+                }, 1000);
+
                 break;
             case Constant.COMMAND_GMAEEND:
                 cc.director.emit(Constant.COMMAND_GMAEEND.toString(), body);
@@ -229,8 +230,8 @@ export class Socket {
         this.sendMessage(Constant.COMMAND_CONNCARD, { id: id, pokers: pokers });
     }
 
-    LeaveRoom() {
-        this.sendMessage(Constant.COMMAND_LEAVEROOM, {});
+    LeaveRoom(id: number) {
+        this.sendMessage(Constant.COMMAND_LEAVEROOM, { id: id });
     }
 
     Tuoguan(id: number, isTuoguan: boolean) {

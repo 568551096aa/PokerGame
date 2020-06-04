@@ -2,6 +2,7 @@ import { GameMode } from "./GameMode"
 import { Http } from "../serve/Http";
 import { socket } from "../serve/Socket";
 import { Constant } from "./Constant";
+import { Manager } from "./Consist";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
@@ -27,7 +28,7 @@ export class Loading extends cc.Component {
     persisNode: cc.Node = null;
 
 
-    async onLoad() {
+    onLoad() {
 
         /*var res = await Http.httpPost("http://192.168.2.127:3000", JSON.stringify({
             id: Constant.MINUS_GOLD, uid: 1, num:
@@ -46,6 +47,14 @@ export class Loading extends cc.Component {
             }, 10);
         }, 10)*/
         cc.game.addPersistRootNode(this.persisNode);
+
+        this.init();
+
+    }
+
+    init() {
+        
+        Manager.playBgmAudio();
     }
 
     showMenu() {

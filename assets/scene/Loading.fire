@@ -44,8 +44,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.4125,
-      "y": 0.4125,
+      "x": 0.39375,
+      "y": 0.39375,
       "z": 1
     },
     "_quat": {
@@ -920,6 +920,9 @@
       },
       {
         "__id__": 24
+      },
+      {
+        "__id__": 25
       }
     ],
     "_prefab": null,
@@ -1002,5 +1005,30 @@
       "__uuid__": "5641196a-a95a-48e2-92aa-0d22e554a176"
     },
     "_id": "34KgUPkFVMuLd2BrktLASm"
+  },
+  {
+    "__type__": "c8a73xHja9A8YU6DpuPxIYQ",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 21
+    },
+    "_enabled": true,
+    "bgmAudioClip": {
+      "__uuid__": "af436620-f87b-4041-b274-1f673e1c3dc5"
+    },
+    "GamebgmAudioClip": {
+      "__uuid__": "2202d273-c6bc-4565-8e4d-d28793779251"
+    },
+    "startBtn": {
+      "__uuid__": "81b354d0-9f2e-4ae4-92a0-c6b3bc00a50c"
+    },
+    "selectBoss": {
+      "__uuid__": "4c6a762f-a74c-4061-a2d0-9a58801332e6"
+    },
+    "notSelectBoss": {
+      "__uuid__": "7e21137b-7150-45cb-bad2-db16f0eb6e80"
+    },
+    "_id": "e0Vm4IgZpKL6DlB3F/hLQY"
   }
 ]

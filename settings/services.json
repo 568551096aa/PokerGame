@@ -30,14 +30,14 @@
 			"require_verify": 0,
 			"service_price": "该服务按使用量计费，为开发者提供一定的免费额度，超出免费额度将进行收费，详情请看 <a href='https://cloud.tencent.com/document/product/876/18864'><font color='#dddddd'>计费规则</font></a> 。",
 			"service_protocol": "游戏首次开启该服务时，Cocos会后台通知服务方为游戏开通服务并初始化参数，服务方根据需要可能会获取您的Cocos账户信息，包括账户基本资料、游戏基本资料、账户余额等，点击确认开通按钮即视为您同意该服务访问您的账户信息，详见<a href='http://auth.cocos.com/CocosServiceAgreement.html'>《Cocos用户服务协议》</a>和<a href='http://auth.cocos.com/PrivacyPolicy.html'>《Cocos隐私政策》</a>",
-			"service_group": "腾讯云小游戏云服务",
+			"service_group": "腾讯云游戏云服务",
 			"not_service": false
 		},
 		{
 			"service_id": "269",
-			"service_name": "小游戏联机对战引擎",
+			"service_name": "游戏联机对战引擎",
 			"service_icon": "https://download.cocos.com/CocosUdc/client/af078f8ea7/d9aeaa8fbf76d6ddda2fbd78db416cb5.png",
-			"service_desc": "小游戏联机对战引擎(MGOBE)：为游戏提供房间管理、在线匹配、帧同步、状态同步等网络通信服务，帮助开发者快速搭建多人交互游戏。同时提供云函数、云存储、云数据库，支持大厅服和单机游戏。\n",
+			"service_desc": "游戏联机对战引擎(MGOBE)：为游戏提供房间管理、在线匹配、帧同步、状态同步等网络通信服务，帮助开发者快速搭建多人交互游戏。同时提供云函数、云存储、云数据库，支持大厅服和单机游戏。\n",
 			"service_title": "提供房间管理、匹配管理、帧同步、状态同步、云开发等服务。",
 			"service_guide_url": "https://docs.cocos.com/creator/manual/zh/cocos-service/gme.html",
 			"service_sample_url": "https://github.com/CocosService/mgobeDemo?ccservices_local_sample=service-mgobe",
@@ -58,7 +58,7 @@
 			"require_verify": 0,
 			"service_price": "小游戏联机对战引擎根据DAU及超额流量计费，500DAU以内免费使用。<a href='https://cloud.tencent.com/document/product/1038/33293'><font color='#dddddd'>查看计费详情</font></a>。",
 			"service_protocol": "游戏首次开启该服务时，Cocos会后台通知服务方为游戏开通服务并初始化参数，服务方根据需要可能会获取您的Cocos账户信息，包括账户基本资料、游戏基本资料、账户余额等，点击确认开通按钮即视为您同意该服务访问您的账户信息，详见<a href='http://auth.cocos.com/CocosServiceAgreement.html'>《Cocos用户服务协议》</a>和<a href='http://auth.cocos.com/PrivacyPolicy.html'>《Cocos隐私政策》</a>",
-			"service_group": "腾讯云小游戏云服务",
+			"service_group": "腾讯云游戏云服务",
 			"not_service": false
 		},
 		{
